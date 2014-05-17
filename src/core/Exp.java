@@ -2,7 +2,6 @@ package core;
 
 import util.*;
 
-
 abstract public class Exp {
 	abstract public void accept(Visitor visitor);
 
@@ -24,28 +23,33 @@ abstract public class Exp {
 	}
 
 	public static Exp expbinaria(Exp lhs, int op, Exp rhs) {
-		if ( lhs instanceof UnopExp ) {
+		if (lhs instanceof UnopExp) {
 			UnopExp u = (UnopExp) lhs;
-			if ( precedencia(op) > precedencia(u.op) )
-				return expunaria( u.op, expbinaria( u.rhs, op, rhs ) );
+			if (precedencia(op) > precedencia(u.op))
+				return expunaria(u.op, expbinaria(u.rhs, op, rhs));
 		}
-		if ( lhs instanceof BinopExp ) {
+		if (lhs instanceof BinopExp) {
 			BinopExp b = (BinopExp) lhs;
-			if ( (precedencia(op) > precedencia(b.op)) ||
-					((precedencia(op) == precedencia(b.op)) && isrightassoc(op)) )
-				return expbinaria( b.lhs, b.op, expbinaria( b.rhs, op, rhs ) );
+			if ((precedencia(op) > precedencia(b.op)) ||
+					((precedencia(op) == precedencia(b.op)) && isrightassoc(op)))
+				return expbinaria(b.lhs, b.op, expbinaria(b.rhs, op, rhs));
 		}
-		if ( rhs instanceof BinopExp ) {
+		if (rhs instanceof BinopExp) {
 			BinopExp b = (BinopExp) rhs;
 			if ( (precedencia(op) > precedencia(b.op)) ||
-					((precedencia(op) == precedencia(b.op)) && ! isrightassoc(op)) )
-				return expbinaria( expbinaria( lhs, op, b.lhs ), b.op, b.rhs );
+					((precedencia(op) == precedencia(b.op)) && !isrightassoc(op)))
+				return expbinaria(expbinaria(lhs, op, b.lhs), b.op, b.rhs);
 		}
 		return new BinopExp(lhs, op, rhs);
 	}
+	
+	/** foo(2,3) */
+	public static ChamadaFunc functionop(ExpPrimaria lhs, FuncArgs args) {
+		return new ChamadaFunc(lhs, args);
+	}
 
 	static boolean isrightassoc(int op) {
-		switch ( op ) {
+		switch (op) {
 		case Lua.OP_CONCAT:
 		case Lua.OP_POW: return true;
 		default: return false;
@@ -68,8 +72,8 @@ abstract public class Exp {
 
 
 	/** foo */
-	public static NameExp nomeprefix(String name) {
-		return new NameExp(name);
+	public static NomeExp nomeprefix(String name) {
+		return new NomeExp(name);
 	}
 
 	/** ( foo.bar ) */
@@ -81,7 +85,7 @@ abstract public class Exp {
 		return false;
 	}
 
-	abstract public static class PrimaryExp extends Exp {
+	abstract public static class ExpPrimaria extends Exp {
 		public boolean isvarexp() {
 			return false;
 		}
@@ -90,7 +94,7 @@ abstract public class Exp {
 		}
 	}
 
-	abstract public static class VarExp extends PrimaryExp {
+	abstract public static class VarExp extends ExpPrimaria {
 		public boolean isvarexp() {
 			return true;
 		}
@@ -98,20 +102,20 @@ abstract public class Exp {
 		}
 	}
 
-	public static class NameExp extends VarExp {
-		public final Nome name;
-		public NameExp(String name) {
-			this.name = new Nome(name);
+	public static class NomeExp extends VarExp {
+		public final Nome nome;
+		public NomeExp(String name) {
+			this.nome = new Nome(name);
 		}
 		public void markHasAssignment() {
-			name.variavel.hasassignments = true;
+			nome.variavel.hasassignments = true;
 		}
 		public void accept(Visitor visitor) {
 			visitor.visit(this);
 		}
 	}
 
-	public static class ParensExp extends PrimaryExp {
+	public static class ParensExp extends ExpPrimaria {
 		public final Exp exp;
 		public ParensExp(Exp exp) {
 			this.exp = exp;
@@ -123,11 +127,11 @@ abstract public class Exp {
 	}
 
 	public static class FieldExp extends VarExp {
-		public final PrimaryExp lhs;
-		public final Nome name;
-		public FieldExp(PrimaryExp lhs, String name) {
+		public final ExpPrimaria lhs;
+		public final Nome nome;
+		public FieldExp(ExpPrimaria lhs, String name) {
 			this.lhs = lhs;
-			this.name = new Nome(name);
+			this.nome = new Nome(name);
 		}
 
 		public void accept(Visitor visitor) {
@@ -171,5 +175,27 @@ abstract public class Exp {
 		public void accept(Visitor visitor) {
 			visitor.visit(this);
 		}		
+	}
+	
+	public static class ChamadaFunc extends ExpPrimaria {
+		public final ExpPrimaria lhs;
+		public final FuncArgs args;
+		
+		public ChamadaFunc(ExpPrimaria lhs, FuncArgs args) {
+			this.lhs = lhs;
+			this.args = args;
+		}
+
+		public boolean isfunccall() {
+			return true;
+		}
+		
+		public void accept(Visitor visitor) {
+			visitor.visit(this);
+		}
+		
+		public boolean isvarargexp() {
+			return true;
+		}
 	}
 }
