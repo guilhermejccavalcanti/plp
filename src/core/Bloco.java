@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Bloco extends Comando{
 	public List<Comando> comandos = new ArrayList<Comando>();
-	public NameScope escopo;
+	public Escopo escopo;
 	
 	public void add(Comando c) {
 		if (c == null)

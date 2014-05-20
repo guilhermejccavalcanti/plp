@@ -7,49 +7,25 @@ import java.util.*;
 
 public class LuaParser implements LuaParserConstants {
 
-  public static void main(String args [])
-  {
-    LuaParser parser;
-    if (args.length == 0)
-    {
-      System.out.println("Lua PLP Parser Version 0.0.1: Reading from standard input . . .");
-      parser = new LuaParser(System.in);
-    }
-    else if (args.length == 1)
-    {
-      System.out.println("Lua PLP Parser Version 0.0.1: Reading from file " + args [0] + " . . .");
-      try
-      {
-        parser = new LuaParser(new java.io.FileInputStream(args [0]));
-      }
-      catch (java.io.FileNotFoundException e)
-      {
-        System.out.println("Java Parser Version 1.0.2: File " + args [0] + " not found.");
-        return;
-      }
-    }
-    else
-    {
-      System.out.println("Lua PLP Parser Version 0.0.1: Usage is one of:");
-      System.out.println("         java LuaGrammar < inputfile");
-      System.out.println("OR");
-      System.out.println("         java LuaGrammar inputfile");
-      return;
-    }
-    try
-    {
-      Trecho trecho;
-      trecho = parser.Trecho();
-      System.out.println("Lua PLP Parser Version 0.0.1: Lua program parsed successfully.");
-
-      //trecho.accept(trecho);
-    }
-    catch (ParseException e)
-    {
-      System.out.println("Lua PLP Parser Version 0.0.1: Encountered errors during parse.");
-       System.out.println(e.getMessage());
-    }
-  }
+        public static Trecho parse(java.io.File file) {
+                LuaParser parser;
+                Trecho trecho = null;
+                System.out.println("Lua PLP Parser Version 0.0.1: Reading from file " + file.getName() + "...");
+                try {
+                        parser = new LuaParser(new java.io.FileInputStream(file));
+                } catch (java.io.FileNotFoundException e) {
+                        System.out.println("Lua PLP Parser Version 0.0.1: File " + file.getName() + " not found.");
+                        return null;
+                }
+                try {
+                        trecho = parser.Trecho();
+                        System.out.println("Lua PLP Parser Version 0.0.1: Lua program parsed successfully.");
+                } catch (ParseException e) {
+                        System.out.println("Lua PLP Parser Version 0.0.1: Encountered errors during parse.");
+                        System.out.println(e.getMessage());
+                }
+                return trecho;
+        }
 
   private static Exp.VarExp assertvarexp(Exp.ExpPrimaria pe) throws ParseException {
         if (!pe.isvarexp())
@@ -88,6 +64,11 @@ public class LuaParser implements LuaParserConstants {
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case DO:
+      case FOR:
+      case FUNCTION:
+      case IF:
+      case WHILE:
       case NAME:
       case 70:
       case 73:
@@ -100,27 +81,167 @@ public class LuaParser implements LuaParserConstants {
       c = Comando();
                       b.add(c);
     }
-                                    {if (true) return b;}
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case RETURN:
+      c = ReturnComando();
+                                                       b.add(c);
+      break;
+    default:
+      jj_la1[2] = jj_gen;
+      ;
+    }
+                                                                     {if (true) return b;}
     throw new Error("Missing return statement in function");
   }
 
   final public Comando Comando() throws ParseException {
+        Bloco b;
+        Exp e,e2,e3=null;
         Comando c;
+        Token n;
+        FuncNome fn;
+        FuncCorpo fb;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 70:
       jj_consume_token(70);
              {if (true) return null;}
+      break;
+    case DO:
+      jj_consume_token(DO);
+      b = Bloco();
+      jj_consume_token(END);
+                                c=Comando.bloco(b); {if (true) return c;}
+      break;
+    case WHILE:
+      jj_consume_token(WHILE);
+      e = Exp();
+      jj_consume_token(DO);
+      b = Bloco();
+      jj_consume_token(END);
+                                               c=Comando.whiledo(e,b); {if (true) return c;}
       break;
     case NAME:
     case 73:
       c = ExprComando();
                           {if (true) return c;}
       break;
+    case IF:
+      c = IfThenElse();
+                          {if (true) return c;}
+      break;
     default:
-      jj_la1[2] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+      jj_la1[4] = jj_gen;
+      if (jj_2_1(3)) {
+        jj_consume_token(FOR);
+        n = jj_consume_token(NAME);
+        jj_consume_token(71);
+        e = Exp();
+        jj_consume_token(72);
+        e2 = Exp();
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case 72:
+          jj_consume_token(72);
+          e3 = Exp();
+          break;
+        default:
+          jj_la1[3] = jj_gen;
+          ;
+        }
+        jj_consume_token(DO);
+        b = Bloco();
+        jj_consume_token(END);
+                                                                                                     c=Comando.fornumerico(n.image,e,e2,e3,b); {if (true) return c;}
+      } else {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case FUNCTION:
+          jj_consume_token(FUNCTION);
+          fn = FuncNome();
+          fb = FuncCorpo();
+                                                   c=Comando.deffuncao(fn,fb); {if (true) return c;}
+          break;
+        default:
+          jj_la1[5] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      }
     }
+    throw new Error("Missing return statement in function");
+  }
+
+  final public Comando IfThenElse() throws ParseException {
+        Bloco b,b2,b3=null;
+        Exp e,e2;
+        List<Exp> el=null;
+        List<Bloco> bl=null;
+    jj_consume_token(IF);
+    e = Exp();
+    jj_consume_token(THEN);
+    b = Bloco();
+    label_2:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ELSEIF:
+        ;
+        break;
+      default:
+        jj_la1[6] = jj_gen;
+        break label_2;
+      }
+      jj_consume_token(ELSEIF);
+      e2 = Exp();
+      jj_consume_token(THEN);
+      b2 = Bloco();
+                        if (el==null) el=new ArrayList<Exp>();
+                        if (bl==null) bl=new ArrayList<Bloco>();
+                        el.add(e2);
+                        bl.add(b2);
+    }
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ELSE:
+      jj_consume_token(ELSE);
+      b3 = Bloco();
+      break;
+    default:
+      jj_la1[7] = jj_gen;
+      ;
+    }
+    jj_consume_token(END);
+                          {if (true) return Comando.ifthenelse(e,b,el,bl,b3);}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public Comando ReturnComando() throws ParseException {
+        List<Exp> el=null;
+        Comando c;
+    jj_consume_token(RETURN);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case FALSE:
+    case NIL:
+    case NOT:
+    case TRUE:
+    case NAME:
+    case NUMBER:
+    case STRING:
+    case 69:
+    case 73:
+    case 78:
+    case 83:
+      el = ExpList();
+      break;
+    default:
+      jj_la1[8] = jj_gen;
+      ;
+    }
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 70:
+      jj_consume_token(70);
+      break;
+    default:
+      jj_la1[9] = jj_gen;
+      ;
+    }
+                                           c=Comando.returncomando(el); {if (true) return c;}
     throw new Error("Missing return statement in function");
   }
 
@@ -131,39 +252,122 @@ public class LuaParser implements LuaParserConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 71:
     case 72:
-      c = Assign(assertvarexp(p));
+      c = Atribui(assertvarexp(p));
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[10] = jj_gen;
       ;
     }
          if(c==null){c=Comando.chamadafunc(assertfunccall(p));}{if (true) return c;}
     throw new Error("Missing return statement in function");
   }
 
-  final public Comando Assign(Exp.VarExp v0) throws ParseException {
+  final public Comando Atribui(Exp.VarExp v0) throws ParseException {
         List<Exp.VarExp> vl = new ArrayList<Exp.VarExp>();
         vl.add(v0);
         Exp.VarExp ve;
         List<Exp> el;
         Comando c;
-    label_2:
+    label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 71:
+      case 72:
         ;
         break;
       default:
-        jj_la1[4] = jj_gen;
-        break label_2;
+        jj_la1[11] = jj_gen;
+        break label_3;
       }
-      jj_consume_token(71);
+      jj_consume_token(72);
       ve = VarExp();
                           vl.add(ve);
     }
-    jj_consume_token(72);
+    jj_consume_token(71);
     el = ExpList();
-                                                           c=Comando.assignment(vl,el); {if (true) return c;}
+                                                           c=Comando.atribuicao(vl,el); {if (true) return c;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public Exp Exp() throws ParseException {
+        Exp e,s;
+        int op;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case FALSE:
+    case NIL:
+    case TRUE:
+    case NAME:
+    case NUMBER:
+    case STRING:
+    case 73:
+    case 78:
+      e = SimpleExp();
+      break;
+    case NOT:
+    case 69:
+    case 83:
+      op = Unop();
+      s = Exp();
+                                            e=Exp.expunaria(op,s);
+      break;
+    default:
+      jj_la1[12] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    label_4:
+    while (true) {
+      if (jj_2_2(2)) {
+        ;
+      } else {
+        break label_4;
+      }
+      op = Binop();
+      s = Exp();
+                                          e=Exp.expbinaria(e,op,s);
+    }
+                                                                        {if (true) return e;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public Exp SimpleExp() throws ParseException {
+        Token n;
+        Exp e;
+        ConstrutorTabela c;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case NIL:
+      jj_consume_token(NIL);
+                                                          e=new LuaNil(); {if (true) return e;}
+      break;
+    case TRUE:
+      jj_consume_token(TRUE);
+                                                          e=new LuaBoolean(true); {if (true) return e;}
+      break;
+    case FALSE:
+      jj_consume_token(FALSE);
+                                                          e=new LuaBoolean(false); {if (true) return e;}
+      break;
+    case NUMBER:
+      n = jj_consume_token(NUMBER);
+                                                          e=new LuaNumber(Integer.parseInt(n.toString())); {if (true) return e;}
+      break;
+    case STRING:
+      e = Str();
+                                                          {if (true) return e;}
+      break;
+    case 78:
+      c = ConstrutorTabela();
+                                          e=Exp.construtortabela(c); {if (true) return e;}
+      break;
+    case NAME:
+    case 73:
+      e = ExpPrimaria();
+                                                  {if (true) return e;}
+      break;
+    default:
+      jj_la1[13] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
     throw new Error("Missing return statement in function");
   }
 
@@ -177,12 +381,12 @@ public class LuaParser implements LuaParserConstants {
   final public Exp.ExpPrimaria ExpPrimaria() throws ParseException {
         Exp.ExpPrimaria p;
     p = ExpPrefixa();
-    label_3:
+    label_5:
     while (true) {
-      if (jj_2_1(2)) {
+      if (jj_2_3(2)) {
         ;
       } else {
-        break label_3;
+        break label_5;
       }
       p = OpPosFixo(p);
     }
@@ -197,47 +401,6 @@ public class LuaParser implements LuaParserConstants {
         Exp.ExpPrimaria p;
     a = FuncArgs();
                       p=Exp.functionop(lhs, a); {if (true) return p;}
-    throw new Error("Missing return statement in function");
-  }
-
-  final public FuncArgs FuncArgs() throws ParseException {
-        List<Exp> el=null;
-        LuaString s;
-        FuncArgs a;
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 73:
-      jj_consume_token(73);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case FALSE:
-      case NIL:
-      case NOT:
-      case TRUE:
-      case NAME:
-      case NUMBER:
-      case STRING:
-      case CHARSTRING:
-      case 69:
-      case 73:
-      case 76:
-        el = ExpList();
-        break;
-      default:
-        jj_la1[5] = jj_gen;
-        ;
-      }
-      jj_consume_token(74);
-                                  a=FuncArgs.explist(el); {if (true) return a;}
-      break;
-    case STRING:
-    case CHARSTRING:
-      s = Str();
-                                                  a=FuncArgs.string(s); {if (true) return a;}
-      break;
-    default:
-      jj_la1[6] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
     throw new Error("Missing return statement in function");
   }
 
@@ -257,7 +420,7 @@ public class LuaParser implements LuaParserConstants {
                            p=Exp.parensprefix(e); {if (true) return p;}
       break;
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[14] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -269,17 +432,17 @@ public class LuaParser implements LuaParserConstants {
         Exp e;
     e = Exp();
                  l.add(e);
-    label_4:
+    label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 71:
+      case 72:
         ;
         break;
       default:
-        jj_la1[8] = jj_gen;
-        break label_4;
+        jj_la1[15] = jj_gen;
+        break label_6;
       }
-      jj_consume_token(71);
+      jj_consume_token(72);
       e = Exp();
                                           l.add(e);
     }
@@ -287,150 +450,334 @@ public class LuaParser implements LuaParserConstants {
     throw new Error("Missing return statement in function");
   }
 
-  final public Exp Exp() throws ParseException {
-        Exp e,s;
-        int op;
+  final public FuncArgs FuncArgs() throws ParseException {
+        List<Exp> el=null;
+        LuaString s;
+        FuncArgs a;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case FALSE:
-    case NIL:
-    case TRUE:
-    case NAME:
-    case NUMBER:
-    case STRING:
-    case CHARSTRING:
     case 73:
-      e = SimpleExp();
+      jj_consume_token(73);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case FALSE:
+      case NIL:
+      case NOT:
+      case TRUE:
+      case NAME:
+      case NUMBER:
+      case STRING:
+      case 69:
+      case 73:
+      case 78:
+      case 83:
+        el = ExpList();
+        break;
+      default:
+        jj_la1[16] = jj_gen;
+        ;
+      }
+      jj_consume_token(74);
+                                  a=FuncArgs.explist(el); {if (true) return a;}
       break;
-    case NOT:
-    case 69:
-    case 76:
-      op = Unop();
-      s = Exp();
-                                            e=Exp.expunaria(op,s);
+    case STRING:
+      s = Str();
+                                                  a=FuncArgs.string(s); {if (true) return a;}
       break;
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[17] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    label_5:
-    while (true) {
-      if (jj_2_2(2)) {
-        ;
-      } else {
-        break label_5;
-      }
-      op = Binop();
-      s = Exp();
-                                          e=Exp.expbinaria(e,op,s);
-    }
-                                                                        {if (true) return e;}
     throw new Error("Missing return statement in function");
   }
 
-  final public Exp SimpleExp() throws ParseException {
+  final public FuncNome FuncNome() throws ParseException {
         Token n;
-        LuaString s;
-        Exp e;
+        FuncNome f;
+    n = jj_consume_token(NAME);
+                  f=new FuncNome(n.image);
+    label_7:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case 75:
+        ;
+        break;
+      default:
+        jj_la1[18] = jj_gen;
+        break label_7;
+      }
+      jj_consume_token(75);
+      n = jj_consume_token(NAME);
+                                f.addponto(n.image);
+    }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case NIL:
-      jj_consume_token(NIL);
-                                                          e=Exp.constante(LuaValue.NIL); {if (true) return e;}
-      break;
-    case TRUE:
-      jj_consume_token(TRUE);
-                                                          e=Exp.constante(LuaValue.TRUE); {if (true) return e;}
-      break;
-    case FALSE:
-      jj_consume_token(FALSE);
-                                                          e=Exp.constante(LuaValue.FALSE); {if (true) return e;}
-      break;
-    case NUMBER:
-      n = jj_consume_token(NUMBER);
-                                                          e=Exp.constantenumerica(n.image); {if (true) return e;}
-      break;
-    case STRING:
-    case CHARSTRING:
-      s = Str();
-                                                          e=Exp.constante(s); {if (true) return e;}
-      break;
-    case NAME:
-    case 73:
-      e = ExpPrimaria();
-                                                  {if (true) return e;}
+    case 76:
+      jj_consume_token(76);
+      n = jj_consume_token(NAME);
+                                f.metodo=n.image;
       break;
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[19] = jj_gen;
+      ;
+    }
+                         {if (true) return f;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public FuncCorpo FuncCorpo() throws ParseException {
+        ParList pl=null;
+        Bloco b;
+        FuncCorpo f;
+    jj_consume_token(73);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case NAME:
+    case 77:
+      pl = ParList();
+      break;
+    default:
+      jj_la1[20] = jj_gen;
+      ;
+    }
+    jj_consume_token(74);
+    b = Bloco();
+    jj_consume_token(END);
+                                                   f=new FuncCorpo(pl,b); {if (true) return f;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public ParList ParList() throws ParseException {
+        List<Nome> l=null;
+        boolean v=false;
+        ParList p;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case NAME:
+      l = ListaNome();
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case 72:
+        jj_consume_token(72);
+        jj_consume_token(77);
+                                  v=true;
+        break;
+      default:
+        jj_la1[21] = jj_gen;
+        ;
+      }
+                                              p=new ParList(l,v); {if (true) return p;}
+      break;
+    case 77:
+      jj_consume_token(77);
+                  p=new ParList(null,true); {if (true) return p;}
+      break;
+    default:
+      jj_la1[22] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
     throw new Error("Missing return statement in function");
+  }
+
+  final public List<Nome> ListaNome() throws ParseException {
+        List<Nome> l = new ArrayList<Nome>();
+        Token nome;
+    nome = jj_consume_token(NAME);
+                     l.add(new Nome(nome.image));
+    label_8:
+    while (true) {
+      if (jj_2_4(2)) {
+        ;
+      } else {
+        break label_8;
+      }
+      jj_consume_token(72);
+      nome = jj_consume_token(NAME);
+                                                                                  l.add(new Nome(nome.image));
+    }
+                                                                                                                   {if (true) return l;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public ConstrutorTabela ConstrutorTabela() throws ParseException {
+        ConstrutorTabela c = new ConstrutorTabela();
+        List<CampoTabela> l = null;
+    jj_consume_token(78);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case FALSE:
+    case NIL:
+    case NOT:
+    case TRUE:
+    case NAME:
+    case NUMBER:
+    case STRING:
+    case 69:
+    case 73:
+    case 78:
+    case 80:
+    case 83:
+      l = ListaCampos();
+                               c.campos=l;
+      break;
+    default:
+      jj_la1[23] = jj_gen;
+      ;
+    }
+    jj_consume_token(79);
+                                                    {if (true) return c;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public List<CampoTabela> ListaCampos() throws ParseException {
+        List<CampoTabela> l = new ArrayList<CampoTabela>();
+        CampoTabela f;
+    f = Campo();
+                   l.add(f);
+    label_9:
+    while (true) {
+      if (jj_2_5(2)) {
+        ;
+      } else {
+        break label_9;
+      }
+      CampoSep();
+      f = Campo();
+                                                                  l.add(f);
+    }
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 70:
+    case 72:
+      CampoSep();
+      break;
+    default:
+      jj_la1[24] = jj_gen;
+      ;
+    }
+                                                                                               {if (true) return l;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final public CampoTabela Campo() throws ParseException {
+        Token nome;
+        Exp exp,rhs;
+        CampoTabela f;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 80:
+      jj_consume_token(80);
+      exp = Exp();
+      jj_consume_token(81);
+      jj_consume_token(71);
+      rhs = Exp();
+                                                                  f=CampoTabela.campoChaveado(exp,rhs); {if (true) return f;}
+      break;
+    default:
+      jj_la1[25] = jj_gen;
+      if (jj_2_6(2)) {
+        nome = jj_consume_token(NAME);
+        jj_consume_token(71);
+        rhs = Exp();
+                                                                  f=CampoTabela.campoNomeado(nome.image,rhs); {if (true) return f;}
+      } else {
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case FALSE:
+        case NIL:
+        case NOT:
+        case TRUE:
+        case NAME:
+        case NUMBER:
+        case STRING:
+        case 69:
+        case 73:
+        case 78:
+        case 83:
+          rhs = Exp();
+                                                                  f=CampoTabela.listCampos(rhs);  {if (true) return f;}
+          break;
+        default:
+          jj_la1[26] = jj_gen;
+          jj_consume_token(-1);
+          throw new ParseException();
+        }
+      }
+    }
+    throw new Error("Missing return statement in function");
+  }
+
+  final public void CampoSep() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 72:
+      jj_consume_token(72);
+      break;
+    case 70:
+      jj_consume_token(70);
+      break;
+    default:
+      jj_la1[27] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
   }
 
   final public int Binop() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 75:
-      jj_consume_token(75);
-                        {if (true) return Lua.OP_ADD;}
-      break;
-    case 76:
-      jj_consume_token(76);
-                        {if (true) return Lua.OP_SUB;}
-      break;
-    case 77:
-      jj_consume_token(77);
-                        {if (true) return Lua.OP_MUL;}
-      break;
-    case 78:
-      jj_consume_token(78);
-                        {if (true) return Lua.OP_DIV;}
-      break;
-    case 79:
-      jj_consume_token(79);
-                        {if (true) return Lua.OP_POW;}
-      break;
-    case 80:
-      jj_consume_token(80);
-                        {if (true) return Lua.OP_MOD;}
-      break;
-    case 81:
-      jj_consume_token(81);
-                        {if (true) return Lua.OP_CONCAT;}
-      break;
     case 82:
       jj_consume_token(82);
-                        {if (true) return Lua.OP_LT;}
+                        {if (true) return LuaOps.OP_ADD;}
       break;
     case 83:
       jj_consume_token(83);
-                        {if (true) return Lua.OP_LE;}
+                        {if (true) return LuaOps.OP_SUB;}
       break;
     case 84:
       jj_consume_token(84);
-                        {if (true) return Lua.OP_GT;}
+                        {if (true) return LuaOps.OP_MUL;}
       break;
     case 85:
       jj_consume_token(85);
-                        {if (true) return Lua.OP_GE;}
+                        {if (true) return LuaOps.OP_DIV;}
       break;
     case 86:
       jj_consume_token(86);
-                        {if (true) return Lua.OP_EQ;}
+                        {if (true) return LuaOps.OP_POW;}
       break;
     case 87:
       jj_consume_token(87);
-                        {if (true) return Lua.OP_NEQ;}
+                        {if (true) return LuaOps.OP_MOD;}
+      break;
+    case 88:
+      jj_consume_token(88);
+                        {if (true) return LuaOps.OP_CONCAT;}
+      break;
+    case 89:
+      jj_consume_token(89);
+                        {if (true) return LuaOps.OP_LT;}
+      break;
+    case 90:
+      jj_consume_token(90);
+                        {if (true) return LuaOps.OP_LE;}
+      break;
+    case 91:
+      jj_consume_token(91);
+                        {if (true) return LuaOps.OP_GT;}
+      break;
+    case 92:
+      jj_consume_token(92);
+                        {if (true) return LuaOps.OP_GE;}
+      break;
+    case 93:
+      jj_consume_token(93);
+                        {if (true) return LuaOps.OP_EQ;}
+      break;
+    case 94:
+      jj_consume_token(94);
+                        {if (true) return LuaOps.OP_NEQ;}
       break;
     case AND:
       jj_consume_token(AND);
-                        {if (true) return Lua.OP_AND;}
+                        {if (true) return LuaOps.OP_AND;}
       break;
     case OR:
       jj_consume_token(OR);
-                        {if (true) return Lua.OP_OR;}
+                        {if (true) return LuaOps.OP_OR;}
       break;
     default:
-      jj_la1[11] = jj_gen;
+      jj_la1[28] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -439,20 +786,20 @@ public class LuaParser implements LuaParserConstants {
 
   final public int Unop() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 76:
-      jj_consume_token(76);
-                        {if (true) return Lua.OP_UNM;}
+    case 83:
+      jj_consume_token(83);
+                        {if (true) return LuaOps.OP_UNM;}
       break;
     case NOT:
       jj_consume_token(NOT);
-                        {if (true) return Lua.OP_NOT;}
+                        {if (true) return LuaOps.OP_NOT;}
       break;
     case 69:
       jj_consume_token(69);
-                        {if (true) return Lua.OP_LEN;}
+                        {if (true) return LuaOps.OP_LEN;}
       break;
     default:
-      jj_la1[12] = jj_gen;
+      jj_la1[29] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -460,20 +807,11 @@ public class LuaParser implements LuaParserConstants {
   }
 
   final public LuaString Str() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case STRING:
-      jj_consume_token(STRING);
-                                  {if (true) return Str.quoteString(token.image);}
-      break;
-    case CHARSTRING:
-      jj_consume_token(CHARSTRING);
-                          {if (true) return Str.charString(token.image);}
-      break;
-    default:
-      jj_la1[13] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
+  Token n;
+    n = jj_consume_token(STRING);
+    String tokenStr = n.toString();
+    tokenStr = tokenStr.substring(1, tokenStr.length() - 1);
+    {if (true) return new LuaString(tokenStr);}
     throw new Error("Missing return statement in function");
   }
 
@@ -491,196 +829,260 @@ public class LuaParser implements LuaParserConstants {
     finally { jj_save(1, xla); }
   }
 
-  private boolean jj_3R_47() {
-    if (jj_scan_token(NAME)) return true;
-    return false;
+  private boolean jj_2_3(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_3(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(2, xla); }
   }
 
-  private boolean jj_3R_46() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_47()) {
-    jj_scanpos = xsp;
-    if (jj_3R_48()) return true;
-    }
-    return false;
+  private boolean jj_2_4(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_4(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(3, xla); }
   }
 
-  private boolean jj_3R_31() {
-    if (jj_3R_42()) return true;
-    return false;
+  private boolean jj_2_5(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_5(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(4, xla); }
   }
 
-  private boolean jj_3R_28() {
-    if (jj_3R_32()) return true;
-    return false;
+  private boolean jj_2_6(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_6(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(5, xla); }
   }
 
-  private boolean jj_3R_9() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_27()) {
-    jj_scanpos = xsp;
-    if (jj_3R_28()) return true;
-    }
-    return false;
-  }
-
-  private boolean jj_3R_27() {
-    if (jj_scan_token(73)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_31()) jj_scanpos = xsp;
-    if (jj_scan_token(74)) return true;
-    return false;
-  }
-
-  private boolean jj_3_1() {
-    if (jj_3R_6()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_6() {
-    if (jj_3R_9()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_41() {
-    if (jj_scan_token(69)) return true;
+  private boolean jj_3R_45() {
+    if (jj_3R_52()) return true;
     return false;
   }
 
   private boolean jj_3R_44() {
-    if (jj_scan_token(CHARSTRING)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_40() {
-    if (jj_scan_token(NOT)) return true;
+    if (jj_3R_51()) return true;
     return false;
   }
 
   private boolean jj_3R_43() {
-    if (jj_scan_token(STRING)) return true;
+    if (jj_3R_50()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_42() {
+    if (jj_scan_token(NUMBER)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_41() {
+    if (jj_scan_token(FALSE)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_40() {
+    if (jj_scan_token(TRUE)) return true;
     return false;
   }
 
   private boolean jj_3R_39() {
-    if (jj_scan_token(76)) return true;
+    if (jj_scan_token(NIL)) return true;
     return false;
   }
 
-  private boolean jj_3R_30() {
+  private boolean jj_3R_35() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_39()) {
     jj_scanpos = xsp;
     if (jj_3R_40()) {
     jj_scanpos = xsp;
-    if (jj_3R_41()) return true;
+    if (jj_3R_41()) {
+    jj_scanpos = xsp;
+    if (jj_3R_42()) {
+    jj_scanpos = xsp;
+    if (jj_3R_43()) {
+    jj_scanpos = xsp;
+    if (jj_3R_44()) {
+    jj_scanpos = xsp;
+    if (jj_3R_45()) return true;
     }
     }
+    }
+    }
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_31() {
+    if (jj_3R_36()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_48() {
+    if (jj_scan_token(69)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_47() {
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_46() {
+    if (jj_scan_token(83)) return true;
+    return false;
+  }
+
+  private boolean jj_3_2() {
+    if (jj_3R_10()) return true;
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_36() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_46()) {
+    jj_scanpos = xsp;
+    if (jj_3R_47()) {
+    jj_scanpos = xsp;
+    if (jj_3R_48()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_30() {
+    if (jj_3R_35()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_11() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_30()) {
+    jj_scanpos = xsp;
+    if (jj_3R_31()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_50() {
+    if (jj_scan_token(STRING)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_29() {
+    if (jj_scan_token(OR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_28() {
+    if (jj_scan_token(AND)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_27() {
+    if (jj_scan_token(94)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_26() {
+    if (jj_scan_token(93)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_25() {
+    if (jj_scan_token(92)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_38() {
+    if (jj_3R_50()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_24() {
+    if (jj_scan_token(91)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_23() {
+    if (jj_scan_token(90)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_22() {
+    if (jj_scan_token(89)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_21() {
+    if (jj_scan_token(88)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_49() {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_20() {
+    if (jj_scan_token(87)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19() {
+    if (jj_scan_token(86)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_18() {
+    if (jj_scan_token(85)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_17() {
+    if (jj_scan_token(84)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_16() {
+    if (jj_scan_token(83)) return true;
     return false;
   }
 
   private boolean jj_3R_32() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_43()) {
+    if (jj_3R_37()) {
     jj_scanpos = xsp;
-    if (jj_3R_44()) return true;
+    if (jj_3R_38()) return true;
     }
     return false;
   }
 
-  private boolean jj_3R_24() {
-    if (jj_scan_token(OR)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_45() {
-    if (jj_3R_46()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_23() {
-    if (jj_scan_token(AND)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_22() {
-    if (jj_scan_token(87)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_21() {
-    if (jj_scan_token(86)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_20() {
-    if (jj_scan_token(85)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_19() {
-    if (jj_scan_token(84)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_18() {
-    if (jj_scan_token(83)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_17() {
-    if (jj_scan_token(82)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_16() {
-    if (jj_scan_token(81)) return true;
+  private boolean jj_3R_37() {
+    if (jj_scan_token(73)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_49()) jj_scanpos = xsp;
+    if (jj_scan_token(74)) return true;
     return false;
   }
 
   private boolean jj_3R_15() {
-    if (jj_scan_token(80)) return true;
+    if (jj_scan_token(82)) return true;
     return false;
   }
 
-  private boolean jj_3R_14() {
-    if (jj_scan_token(79)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_13() {
-    if (jj_scan_token(78)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_12() {
-    if (jj_scan_token(77)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_11() {
-    if (jj_scan_token(76)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_7() {
+  private boolean jj_3R_10() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_10()) {
-    jj_scanpos = xsp;
-    if (jj_3R_11()) {
-    jj_scanpos = xsp;
-    if (jj_3R_12()) {
-    jj_scanpos = xsp;
-    if (jj_3R_13()) {
-    jj_scanpos = xsp;
-    if (jj_3R_14()) {
-    jj_scanpos = xsp;
     if (jj_3R_15()) {
     jj_scanpos = xsp;
     if (jj_3R_16()) {
@@ -699,7 +1101,17 @@ public class LuaParser implements LuaParserConstants {
     jj_scanpos = xsp;
     if (jj_3R_23()) {
     jj_scanpos = xsp;
-    if (jj_3R_24()) return true;
+    if (jj_3R_24()) {
+    jj_scanpos = xsp;
+    if (jj_3R_25()) {
+    jj_scanpos = xsp;
+    if (jj_3R_26()) {
+    jj_scanpos = xsp;
+    if (jj_3R_27()) {
+    jj_scanpos = xsp;
+    if (jj_3R_28()) {
+    jj_scanpos = xsp;
+    if (jj_3R_29()) return true;
     }
     }
     }
@@ -717,96 +1129,106 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_10() {
-    if (jj_scan_token(75)) return true;
+  private boolean jj_3_4() {
+    if (jj_scan_token(72)) return true;
+    if (jj_scan_token(NAME)) return true;
     return false;
   }
 
-  private boolean jj_3R_38() {
-    if (jj_3R_45()) return true;
+  private boolean jj_3_5() {
+    if (jj_3R_13()) return true;
+    if (jj_3R_14()) return true;
     return false;
   }
 
-  private boolean jj_3R_37() {
-    if (jj_3R_32()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_36() {
-    if (jj_scan_token(NUMBER)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_35() {
-    if (jj_scan_token(FALSE)) return true;
+  private boolean jj_3R_53() {
+    if (jj_3R_11()) return true;
     return false;
   }
 
   private boolean jj_3R_34() {
-    if (jj_scan_token(TRUE)) return true;
+    if (jj_3R_11()) return true;
     return false;
   }
 
-  private boolean jj_3R_29() {
+  private boolean jj_3_6() {
+    if (jj_scan_token(NAME)) return true;
+    if (jj_scan_token(71)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_13() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(72)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(70)) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_56() {
+    if (jj_scan_token(73)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_55() {
+    if (jj_scan_token(NAME)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_54() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_55()) {
+    jj_scanpos = xsp;
+    if (jj_3R_56()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_14() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_33()) {
     jj_scanpos = xsp;
-    if (jj_3R_34()) {
+    if (jj_3_6()) {
     jj_scanpos = xsp;
-    if (jj_3R_35()) {
-    jj_scanpos = xsp;
-    if (jj_3R_36()) {
-    jj_scanpos = xsp;
-    if (jj_3R_37()) {
-    jj_scanpos = xsp;
-    if (jj_3R_38()) return true;
-    }
-    }
-    }
+    if (jj_3R_34()) return true;
     }
     }
     return false;
   }
 
   private boolean jj_3R_33() {
-    if (jj_scan_token(NIL)) return true;
+    if (jj_scan_token(80)) return true;
     return false;
   }
 
-  private boolean jj_3R_26() {
-    if (jj_3R_30()) return true;
+  private boolean jj_3_3() {
+    if (jj_3R_12()) return true;
     return false;
   }
 
-  private boolean jj_3_2() {
-    if (jj_3R_7()) return true;
-    if (jj_3R_8()) return true;
+  private boolean jj_3R_12() {
+    if (jj_3R_32()) return true;
     return false;
   }
 
-  private boolean jj_3R_25() {
-    if (jj_3R_29()) return true;
+  private boolean jj_3R_51() {
+    if (jj_scan_token(78)) return true;
     return false;
   }
 
-  private boolean jj_3R_8() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_25()) {
-    jj_scanpos = xsp;
-    if (jj_3R_26()) return true;
-    }
+  private boolean jj_3R_52() {
+    if (jj_3R_54()) return true;
     return false;
   }
 
-  private boolean jj_3R_42() {
-    if (jj_3R_8()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_48() {
-    if (jj_scan_token(73)) return true;
+  private boolean jj_3_1() {
+    if (jj_scan_token(FOR)) return true;
+    if (jj_scan_token(NAME)) return true;
+    if (jj_scan_token(71)) return true;
     return false;
   }
 
@@ -821,7 +1243,7 @@ public class LuaParser implements LuaParserConstants {
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[14];
+  final private int[] jj_la1 = new int[30];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -831,15 +1253,15 @@ public class LuaParser implements LuaParserConstants {
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000000,0x0,0x0,};
+      jj_la1_0 = new int[] {0x0,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000000,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x80000,0x80000,0x0,0x0,0x60190c08,0x60000000,0x80000,0x0,0x60190c08,0x60190408,0x1000,0x800,0x60000000,};
+      jj_la1_1 = new int[] {0x0,0xc00b0,0x2000,0x0,0xc0080,0x20,0x2,0x1,0x20190c08,0x0,0x0,0x0,0x20190c08,0x20190408,0x80000,0x0,0x20190c08,0x20000000,0x0,0x0,0x80000,0x0,0x80000,0x20190c08,0x0,0x0,0x20190c08,0x0,0x1000,0x800,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x20,0x240,0x240,0x180,0x80,0x1220,0x200,0x200,0x80,0x1220,0x200,0xfff800,0x1020,0x0,};
+      jj_la1_2 = new int[] {0x20,0x240,0x0,0x100,0x240,0x0,0x0,0x0,0x84220,0x40,0x180,0x100,0x84220,0x4200,0x200,0x100,0x84220,0x200,0x800,0x1000,0x2000,0x100,0x2000,0x94220,0x140,0x10000,0x84220,0x140,0x7ffc0000,0x80020,};
    }
-  final private JJCalls[] jj_2_rtns = new JJCalls[2];
+  final private JJCalls[] jj_2_rtns = new JJCalls[6];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
@@ -854,7 +1276,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -869,7 +1291,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -880,7 +1302,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -891,7 +1313,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -901,7 +1323,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -911,7 +1333,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1023,12 +1445,12 @@ public class LuaParser implements LuaParserConstants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[88];
+    boolean[] la1tokens = new boolean[95];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < 30; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -1043,7 +1465,7 @@ public class LuaParser implements LuaParserConstants {
         }
       }
     }
-    for (int i = 0; i < 88; i++) {
+    for (int i = 0; i < 95; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
@@ -1070,7 +1492,7 @@ public class LuaParser implements LuaParserConstants {
 
   private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 6; i++) {
     try {
       JJCalls p = jj_2_rtns[i];
       do {
@@ -1079,6 +1501,10 @@ public class LuaParser implements LuaParserConstants {
           switch (i) {
             case 0: jj_3_1(); break;
             case 1: jj_3_2(); break;
+            case 2: jj_3_3(); break;
+            case 3: jj_3_4(); break;
+            case 4: jj_3_5(); break;
+            case 5: jj_3_6(); break;
           }
         }
         p = p.next;

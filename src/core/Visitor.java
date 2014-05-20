@@ -16,7 +16,7 @@ abstract public class Visitor {
 				((Comando) bloco.comandos.get(i)).accept(this);
 	};
 
-	public void visit(Comando.Assign comando) {
+	public void visit(Comando.Atribui comando) {
 		visitVars(comando.vars);
 		visitExps(comando.exps);
 	}
@@ -24,9 +24,6 @@ abstract public class Visitor {
 	public void visit(Exp.BinopExp exp) {
 		exp.lhs.accept(this);
 		exp.rhs.accept(this);
-	}
-
-	public void visit(Exp.Constante exp) {
 	}
 
 	public void visit(Exp.FieldExp exp) {
@@ -46,6 +43,11 @@ abstract public class Visitor {
 		exp.rhs.accept(this);
 	}
 
+	public void visit(LuaValor exp) {
+		
+	}
+	
+	
 	public void visitVars(List<VarExp> vars) {
 		if (vars != null)
 			for (int i = 0, n = vars.size(); i < n; i++)
@@ -58,12 +60,12 @@ abstract public class Visitor {
 				((Exp) exps.get(i)).accept(this);
 	}
 
-	public void visitNames(List<Nome> names) {
-		if (names != null)
-			for (int i = 0, n = names.size(); i < n; i++)
-				visit((Nome) names.get(i));
+	public void visitNomes(List<Nome> nomes) {
+		if (nomes != null)
+			for (int i = 0, n = nomes.size(); i < n; i++)
+				visit((Nome) nomes.get(i));
 	}
-	
+
 	public void visit(Exp.ChamadaFunc exp) {
 		exp.lhs.accept(this);
 		exp.args.accept(this);
@@ -73,15 +75,75 @@ abstract public class Visitor {
 		visitExps(args.exps);
 	}
 
+	public void visit(Comando.WhileDo comando) {
+		comando.exp.accept(this);
+		comando.bloco.accept(this);
+	}
+	
 	public void visit(Comando.ComandoChamadaFunc comando) {
 		comando.chamadafunc.accept(this);
 	}
+
+	public void visit(Comando.IfThenElse comando) {
+		comando.ifexp.accept(this);
+		comando.ifbloco.accept(this);
+		if ( comando.elseifblocos != null ) 
+			for ( int i=0, n=comando.elseifblocos.size(); i<n; i++ ) {
+				((Exp)comando.elseifexps.get(i)).accept(this);
+				((Bloco)comando.elseifblocos.get(i)).accept(this);
+			}
+		if ( comando.elsebloco != null )
+			visit(comando.elsebloco);
+	}
+
+	public void visit(Comando.ForNumerico comando) {
+		visit(comando.escopo);
+		visit(comando.nome);
+		comando.inicial.accept(this);
+		comando.limite.accept(this);
+		if (comando.passo != null )
+			comando.passo.accept(this);
+		comando.bloco.accept(this);
+	}
+	
+	public void visit(Comando.FuncDef comando) {
+		comando.corpo.accept(this);
+	}
+	
+	public void visit(FuncCorpo corpo) {
+		visit(corpo.escopo);
+		corpo.parlist.accept(this);
+		corpo.bloco.accept(this);
+	}
+	
+	public void visit(ParList pars) {
+		visitNomes(pars.nomes);
+	}
+	
+	public void visit(ConstrutorTabela tabela) {
+		if( tabela.campos != null)
+			for ( int i=0, n=tabela.campos.size(); i<n; i++ )
+				((CampoTabela)tabela.campos.get(i)).accept(this);
+	}
+	
+	public void visit(CampoTabela campo) {
+		if ( campo.nome != null );
+			visit( campo.nome );
+		if ( campo.index != null )
+			campo.index.accept(this);
+		campo.rhs.accept(this);
+	}
+	
+	public void visit(Comando.Return comando) {
+		visitExps(comando.valores);
+	}
+
 	public void visit(Nome name) {
 	}
 
 	public void visit(String name) {
 	}
 
-	public void visit(NameScope scope) {
+	public void visit(Escopo scope) {
 	}
 }
