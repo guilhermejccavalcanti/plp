@@ -1,10 +1,12 @@
 package core;
 
 import java.util.List;
+
+import visitor.Visitor;
 import core.Exp.VarExp;
 
 abstract public class Comando {
-	public abstract void accept(Visitor visitor);
+	public abstract LuaValor accept(Visitor visitor);
 
 	public static Comando bloco(Bloco bloco) {
 		return bloco;
@@ -58,8 +60,8 @@ abstract public class Comando {
 			this.exps = exps;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -70,8 +72,8 @@ abstract public class Comando {
 			this.valores = values;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 
 		public int nreturns() {
@@ -91,8 +93,8 @@ abstract public class Comando {
 			this.bloco = bloco;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -103,8 +105,8 @@ abstract public class Comando {
 			this.chamadafunc = chamadafunc;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -124,8 +126,8 @@ abstract public class Comando {
 			this.elsebloco = elsebloco;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -144,8 +146,8 @@ abstract public class Comando {
 			this.bloco = bloco;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -158,8 +160,8 @@ abstract public class Comando {
 			this.corpo = corpo;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 }

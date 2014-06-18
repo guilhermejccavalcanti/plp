@@ -3,6 +3,8 @@ package core;
 import java.util.ArrayList;
 import java.util.List;
 
+import visitor.Visitor;
+
 public class FuncArgs{
 
 	public final List<Exp> exps;
@@ -26,7 +28,7 @@ public class FuncArgs{
 		this.exps.add(string);
 	}
 
-	public void accept(Visitor visitor) {
-		visitor.visit(this);
+	public List<LuaValor> accept(Visitor visitor) {
+		return visitor.visit(this);
 	}
 }

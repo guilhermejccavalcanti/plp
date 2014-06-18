@@ -1,5 +1,7 @@
 package core;
 
+import visitor.Visitor;
+
 public class Trecho {
 	public final Bloco bloco;
 	

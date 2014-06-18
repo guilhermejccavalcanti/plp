@@ -12,4 +12,8 @@ public class LuaNil extends LuaValorConcreto<Boolean> {
 	public Tipo getTipo() {
 		return TipoPrimitivo.NIL;
 	}
+	
+	public String toString() {
+		return "nil";
+	}
 }

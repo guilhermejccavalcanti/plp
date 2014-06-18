@@ -3,6 +3,8 @@ package core;
 import java.util.ArrayList;
 import java.util.List;
 
+import visitor.Visitor;
+
 public class Bloco extends Comando{
 	public List<Comando> comandos = new ArrayList<Comando>();
 	public Escopo escopo;
@@ -13,7 +15,7 @@ public class Bloco extends Comando{
 		comandos.add(c);
 	}
 
-	public void accept(Visitor visitor) {
-		visitor.visit(this);
+	public LuaValor accept(Visitor visitor) {
+		return visitor.visit(this);
 	}
 }

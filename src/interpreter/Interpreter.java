@@ -1,26 +1,31 @@
 package interpreter;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
+import memory.AmbienteExecucaoImperativa2;
+import memory.ContextoExecucaoImperativa2;
+import memory.ListaValor;
 import parser.LuaParser;
-import parser.ParseException;
+import visitor.Evaluator;
 import core.Trecho;
-import core.Visitor;
 
 @SuppressWarnings("unused")
-public class Interpreter extends Visitor {
+public class Interpreter {
 	public static void main(String[] args) {
 		try {
-			Interpreter interpreter = new Interpreter("TestLua.lua");
+			Interpreter interpreter = new Interpreter("TestLua2.lua");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public Interpreter(String fileTestCaseLua) throws ParseException,FileNotFoundException {
+	public Interpreter(String fileTestCaseLua) throws Exception {
 		Trecho programa = LuaParser.parse(new File(fileTestCaseLua));
-		if(programa != null)
-			programa.accept(this);
+		Evaluator evaluator = new Evaluator(new ContextoExecucaoImperativa2(null));
+		if(programa != null){
+			programa.accept(evaluator);
+			ListaValor saida = ((AmbienteExecucaoImperativa2)evaluator.getAmbiente()).getSaida();
+			System.out.println(saida);
+		}
 	}
 }

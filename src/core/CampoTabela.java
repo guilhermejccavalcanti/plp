@@ -1,5 +1,7 @@
 package core;
 
+import visitor.Visitor;
+
 public class CampoTabela  {
 
 	public final Exp index;

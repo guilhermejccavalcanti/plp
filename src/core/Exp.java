@@ -1,9 +1,10 @@
 package core;
 
-import util.*;
+import util.LuaOps;
+import visitor.Visitor;
 
 abstract public class Exp {
-	abstract public void accept(Visitor visitor);
+	abstract public LuaValor accept(Visitor visitor);
 
 //	public static Exp constante(LuaValue value) {
 //		return new Constante(value);
@@ -161,8 +162,8 @@ abstract public class Exp {
 			this.nome = new Nome(name);
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -173,8 +174,8 @@ abstract public class Exp {
 			this.exp = exp;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -187,8 +188,8 @@ abstract public class Exp {
 			this.nome = new Nome(name);
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -213,8 +214,8 @@ abstract public class Exp {
 			this.rhs = rhs;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -228,8 +229,8 @@ abstract public class Exp {
 			this.rhs = rhs;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 
@@ -246,8 +247,8 @@ abstract public class Exp {
 			return true;
 		}
 
-		public void accept(Visitor visitor) {
-			visitor.visit(this);
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 
 		public boolean isvarargexp() {

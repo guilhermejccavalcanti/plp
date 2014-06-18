@@ -1,7 +1,9 @@
 package core;
 
+import visitor.Visitor;
+
 abstract public class LuaValor extends Exp {
-	public void accept(Visitor visitor) {
-		visitor.visit(this);
+	public LuaValor accept(Visitor visitor) {
+		return visitor.visit(this);
 	}
 }

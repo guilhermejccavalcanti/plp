@@ -7,7 +7,7 @@ public class FuncNome {
 	// exemplo: a.b.c.d:e
 
 	// nome base inicial: "a"
-	public final Nome name;
+	public final Nome nome;
 
 	// campos de acesso intermediários: "b", "c", "d"
 	public List<String> pontos;
@@ -16,7 +16,7 @@ public class FuncNome {
 	public String metodo;
 
 	public FuncNome(String nome) {
-		this.name = new Nome(nome);
+		this.nome = new Nome(nome);
 	}
 
 	public void addponto(String ponto) {

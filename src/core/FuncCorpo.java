@@ -9,7 +9,4 @@ public class FuncCorpo {
 		this.parlist = parlist!=null? parlist: ParList.PARLISTA_VAZIA;
 		this.bloco = bloco;
 	}
-	public void accept(Visitor visitor) {
-		visitor.visit(this);
-	}
 }
