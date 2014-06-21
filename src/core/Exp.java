@@ -75,6 +75,11 @@ abstract public class Exp {
 	public static ParensExp parensprefix(Exp exp) {
 		return new ParensExp(exp);
 	}
+	
+	/** foo[exp] */
+	public static IndexExp indexop(ExpPrimaria lhs, Exp exp) {
+		return new IndexExp(lhs, exp);
+	}
 
 
 
@@ -253,6 +258,19 @@ abstract public class Exp {
 
 		public boolean isvarargexp() {
 			return true;
+		}
+	}
+	
+	public static class IndexExp extends VarExp {
+		public final ExpPrimaria lhs;
+		public final Exp exp;
+		public IndexExp(ExpPrimaria lhs, Exp exp) {
+			this.lhs = lhs;
+			this.exp = exp;
+		}
+		
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
 		}
 	}
 }

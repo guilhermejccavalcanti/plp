@@ -69,4 +69,8 @@ public interface Visitor {
 	public void visit(String name);
 
 	public void visit(Escopo scope);
+	
+	public LuaValor visit(Exp.IndexExp exp);
+	
+	public LuaValor visit(Comando.ForGenerico Comando);
 }

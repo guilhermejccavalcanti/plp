@@ -71,7 +71,7 @@ public class LuaParser implements LuaParserConstants {
       case WHILE:
       case NAME:
       case 70:
-      case 73:
+      case 75:
         ;
         break;
       default:
@@ -101,6 +101,8 @@ public class LuaParser implements LuaParserConstants {
         Token n;
         FuncNome fn;
         FuncCorpo fb;
+        List<Nome> nl;
+        List<Exp> el=null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 70:
       jj_consume_token(70);
@@ -121,7 +123,7 @@ public class LuaParser implements LuaParserConstants {
                                                c=Comando.whiledo(e,b); {if (true) return c;}
       break;
     case NAME:
-    case 73:
+    case 75:
       c = ExprComando();
                           {if (true) return c;}
       break;
@@ -158,6 +160,16 @@ public class LuaParser implements LuaParserConstants {
           fn = FuncNome();
           fb = FuncCorpo();
                                                    c=Comando.deffuncao(fn,fb); {if (true) return c;}
+          break;
+        case FOR:
+          jj_consume_token(FOR);
+          nl = ListaNome();
+          jj_consume_token(IN);
+          el = ExpList();
+          jj_consume_token(DO);
+          b = Bloco();
+          jj_consume_token(END);
+                                                                       c=Comando.forgenerico(nl,el,b); {if (true) return c;}
           break;
         default:
           jj_la1[5] = jj_gen;
@@ -224,8 +236,8 @@ public class LuaParser implements LuaParserConstants {
     case NUMBER:
     case STRING:
     case 69:
-    case 73:
-    case 78:
+    case 75:
+    case 80:
     case 83:
       el = ExpList();
       break;
@@ -298,8 +310,8 @@ public class LuaParser implements LuaParserConstants {
     case NAME:
     case NUMBER:
     case STRING:
-    case 73:
-    case 78:
+    case 75:
+    case 80:
       e = SimpleExp();
       break;
     case NOT:
@@ -354,12 +366,12 @@ public class LuaParser implements LuaParserConstants {
       e = Str();
                                                           {if (true) return e;}
       break;
-    case 78:
+    case 80:
       c = ConstrutorTabela();
                                           e=Exp.construtortabela(c); {if (true) return e;}
       break;
     case NAME:
-    case 73:
+    case 75:
       e = ExpPrimaria();
                                                   {if (true) return e;}
       break;
@@ -399,8 +411,23 @@ public class LuaParser implements LuaParserConstants {
         Exp e;
         FuncArgs a;
         Exp.ExpPrimaria p;
-    a = FuncArgs();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case STRING:
+    case 75:
+      a = FuncArgs();
                       p=Exp.functionop(lhs, a); {if (true) return p;}
+      break;
+    case 73:
+      jj_consume_token(73);
+      e = Exp();
+      jj_consume_token(74);
+                          p=Exp.indexop(lhs, e); {if (true) return p;}
+      break;
+    default:
+      jj_la1[14] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
     throw new Error("Missing return statement in function");
   }
 
@@ -413,14 +440,14 @@ public class LuaParser implements LuaParserConstants {
       n = jj_consume_token(NAME);
                                    p=Exp.nomeprefix(n.image); {if (true) return p;}
       break;
-    case 73:
-      jj_consume_token(73);
+    case 75:
+      jj_consume_token(75);
       e = Exp();
-      jj_consume_token(74);
+      jj_consume_token(76);
                            p=Exp.parensprefix(e); {if (true) return p;}
       break;
     default:
-      jj_la1[14] = jj_gen;
+      jj_la1[15] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -439,7 +466,7 @@ public class LuaParser implements LuaParserConstants {
         ;
         break;
       default:
-        jj_la1[15] = jj_gen;
+        jj_la1[16] = jj_gen;
         break label_6;
       }
       jj_consume_token(72);
@@ -455,8 +482,8 @@ public class LuaParser implements LuaParserConstants {
         LuaString s;
         FuncArgs a;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 73:
-      jj_consume_token(73);
+    case 75:
+      jj_consume_token(75);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case FALSE:
       case NIL:
@@ -466,16 +493,16 @@ public class LuaParser implements LuaParserConstants {
       case NUMBER:
       case STRING:
       case 69:
-      case 73:
-      case 78:
+      case 75:
+      case 80:
       case 83:
         el = ExpList();
         break;
       default:
-        jj_la1[16] = jj_gen;
+        jj_la1[17] = jj_gen;
         ;
       }
-      jj_consume_token(74);
+      jj_consume_token(76);
                                   a=FuncArgs.explist(el); {if (true) return a;}
       break;
     case STRING:
@@ -483,7 +510,7 @@ public class LuaParser implements LuaParserConstants {
                                                   a=FuncArgs.string(s); {if (true) return a;}
       break;
     default:
-      jj_la1[17] = jj_gen;
+      jj_la1[18] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -498,25 +525,25 @@ public class LuaParser implements LuaParserConstants {
     label_7:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 75:
+      case 77:
         ;
         break;
       default:
-        jj_la1[18] = jj_gen;
+        jj_la1[19] = jj_gen;
         break label_7;
       }
-      jj_consume_token(75);
+      jj_consume_token(77);
       n = jj_consume_token(NAME);
                                 f.addponto(n.image);
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 76:
-      jj_consume_token(76);
+    case 78:
+      jj_consume_token(78);
       n = jj_consume_token(NAME);
                                 f.metodo=n.image;
       break;
     default:
-      jj_la1[19] = jj_gen;
+      jj_la1[20] = jj_gen;
       ;
     }
                          {if (true) return f;}
@@ -527,17 +554,17 @@ public class LuaParser implements LuaParserConstants {
         ParList pl=null;
         Bloco b;
         FuncCorpo f;
-    jj_consume_token(73);
+    jj_consume_token(75);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case NAME:
-    case 77:
+    case 79:
       pl = ParList();
       break;
     default:
-      jj_la1[20] = jj_gen;
+      jj_la1[21] = jj_gen;
       ;
     }
-    jj_consume_token(74);
+    jj_consume_token(76);
     b = Bloco();
     jj_consume_token(END);
                                                    f=new FuncCorpo(pl,b); {if (true) return f;}
@@ -554,21 +581,21 @@ public class LuaParser implements LuaParserConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 72:
         jj_consume_token(72);
-        jj_consume_token(77);
+        jj_consume_token(79);
                                   v=true;
         break;
       default:
-        jj_la1[21] = jj_gen;
+        jj_la1[22] = jj_gen;
         ;
       }
                                               p=new ParList(l,v); {if (true) return p;}
       break;
-    case 77:
-      jj_consume_token(77);
+    case 79:
+      jj_consume_token(79);
                   p=new ParList(null,true); {if (true) return p;}
       break;
     default:
-      jj_la1[22] = jj_gen;
+      jj_la1[23] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -598,7 +625,7 @@ public class LuaParser implements LuaParserConstants {
   final public ConstrutorTabela ConstrutorTabela() throws ParseException {
         ConstrutorTabela c = new ConstrutorTabela();
         List<CampoTabela> l = null;
-    jj_consume_token(78);
+    jj_consume_token(80);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case FALSE:
     case NIL:
@@ -609,17 +636,17 @@ public class LuaParser implements LuaParserConstants {
     case STRING:
     case 69:
     case 73:
-    case 78:
+    case 75:
     case 80:
     case 83:
       l = ListaCampos();
                                c.campos=l;
       break;
     default:
-      jj_la1[23] = jj_gen;
+      jj_la1[24] = jj_gen;
       ;
     }
-    jj_consume_token(79);
+    jj_consume_token(81);
                                                     {if (true) return c;}
     throw new Error("Missing return statement in function");
   }
@@ -646,7 +673,7 @@ public class LuaParser implements LuaParserConstants {
       CampoSep();
       break;
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[25] = jj_gen;
       ;
     }
                                                                                                {if (true) return l;}
@@ -658,16 +685,16 @@ public class LuaParser implements LuaParserConstants {
         Exp exp,rhs;
         CampoTabela f;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 80:
-      jj_consume_token(80);
+    case 73:
+      jj_consume_token(73);
       exp = Exp();
-      jj_consume_token(81);
+      jj_consume_token(74);
       jj_consume_token(71);
       rhs = Exp();
                                                                   f=CampoTabela.campoChaveado(exp,rhs); {if (true) return f;}
       break;
     default:
-      jj_la1[25] = jj_gen;
+      jj_la1[26] = jj_gen;
       if (jj_2_6(2)) {
         nome = jj_consume_token(NAME);
         jj_consume_token(71);
@@ -683,14 +710,14 @@ public class LuaParser implements LuaParserConstants {
         case NUMBER:
         case STRING:
         case 69:
-        case 73:
-        case 78:
+        case 75:
+        case 80:
         case 83:
           rhs = Exp();
                                                                   f=CampoTabela.listCampos(rhs);  {if (true) return f;}
           break;
         default:
-          jj_la1[26] = jj_gen;
+          jj_la1[27] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -708,7 +735,7 @@ public class LuaParser implements LuaParserConstants {
       jj_consume_token(70);
       break;
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[28] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -777,7 +804,7 @@ public class LuaParser implements LuaParserConstants {
                         {if (true) return LuaOps.OP_OR;}
       break;
     default:
-      jj_la1[28] = jj_gen;
+      jj_la1[29] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -799,7 +826,7 @@ public class LuaParser implements LuaParserConstants {
                         {if (true) return LuaOps.OP_LEN;}
       break;
     default:
-      jj_la1[29] = jj_gen;
+      jj_la1[30] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -857,21 +884,6 @@ public class LuaParser implements LuaParserConstants {
     finally { jj_save(5, xla); }
   }
 
-  private boolean jj_3R_45() {
-    if (jj_3R_52()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_44() {
-    if (jj_3R_51()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_43() {
-    if (jj_3R_50()) return true;
-    return false;
-  }
-
   private boolean jj_3R_42() {
     if (jj_scan_token(NUMBER)) return true;
     return false;
@@ -892,7 +904,7 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_35() {
+  private boolean jj_3R_36() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_39()) {
@@ -918,7 +930,7 @@ public class LuaParser implements LuaParserConstants {
   }
 
   private boolean jj_3R_31() {
-    if (jj_3R_36()) return true;
+    if (jj_3R_37()) return true;
     return false;
   }
 
@@ -937,13 +949,7 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3_2() {
-    if (jj_3R_10()) return true;
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_36() {
+  private boolean jj_3R_37() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_46()) {
@@ -956,8 +962,14 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
+  private boolean jj_3_2() {
+    if (jj_3R_10()) return true;
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
   private boolean jj_3R_30() {
-    if (jj_3R_35()) return true;
+    if (jj_3R_36()) return true;
     return false;
   }
 
@@ -971,7 +983,7 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_50() {
+  private boolean jj_3R_51() {
     if (jj_scan_token(STRING)) return true;
     return false;
   }
@@ -1001,8 +1013,8 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_38() {
-    if (jj_3R_50()) return true;
+  private boolean jj_3R_50() {
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -1026,8 +1038,8 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_49() {
-    if (jj_3R_53()) return true;
+  private boolean jj_3R_54() {
+    if (jj_3R_56()) return true;
     return false;
   }
 
@@ -1056,22 +1068,22 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_32() {
+  private boolean jj_3R_49() {
+    if (jj_scan_token(75)) return true;
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_37()) {
-    jj_scanpos = xsp;
-    if (jj_3R_38()) return true;
-    }
+    if (jj_3R_54()) jj_scanpos = xsp;
+    if (jj_scan_token(76)) return true;
     return false;
   }
 
-  private boolean jj_3R_37() {
-    if (jj_scan_token(73)) return true;
+  private boolean jj_3R_38() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_49()) jj_scanpos = xsp;
-    if (jj_scan_token(74)) return true;
+    if (jj_3R_49()) {
+    jj_scanpos = xsp;
+    if (jj_3R_50()) return true;
+    }
     return false;
   }
 
@@ -1141,12 +1153,12 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_53() {
+  private boolean jj_3R_56() {
     if (jj_3R_11()) return true;
     return false;
   }
 
-  private boolean jj_3R_34() {
+  private boolean jj_3R_35() {
     if (jj_3R_11()) return true;
     return false;
   }
@@ -1167,22 +1179,22 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_56() {
-    if (jj_scan_token(73)) return true;
+  private boolean jj_3R_58() {
+    if (jj_scan_token(75)) return true;
     return false;
   }
 
-  private boolean jj_3R_55() {
+  private boolean jj_3R_57() {
     if (jj_scan_token(NAME)) return true;
     return false;
   }
 
-  private boolean jj_3R_54() {
+  private boolean jj_3R_55() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_55()) {
+    if (jj_3R_57()) {
     jj_scanpos = xsp;
-    if (jj_3R_56()) return true;
+    if (jj_3R_58()) return true;
     }
     return false;
   }
@@ -1190,18 +1202,18 @@ public class LuaParser implements LuaParserConstants {
   private boolean jj_3R_14() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_33()) {
+    if (jj_3R_34()) {
     jj_scanpos = xsp;
     if (jj_3_6()) {
     jj_scanpos = xsp;
-    if (jj_3R_34()) return true;
+    if (jj_3R_35()) return true;
     }
     }
     return false;
   }
 
-  private boolean jj_3R_33() {
-    if (jj_scan_token(80)) return true;
+  private boolean jj_3R_34() {
+    if (jj_scan_token(73)) return true;
     return false;
   }
 
@@ -1210,18 +1222,34 @@ public class LuaParser implements LuaParserConstants {
     return false;
   }
 
-  private boolean jj_3R_12() {
-    if (jj_3R_32()) return true;
+  private boolean jj_3R_33() {
+    if (jj_scan_token(73)) return true;
+    if (jj_3R_11()) return true;
     return false;
   }
 
-  private boolean jj_3R_51() {
-    if (jj_scan_token(78)) return true;
+  private boolean jj_3R_12() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_32()) {
+    jj_scanpos = xsp;
+    if (jj_3R_33()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_32() {
+    if (jj_3R_38()) return true;
     return false;
   }
 
   private boolean jj_3R_52() {
-    if (jj_3R_54()) return true;
+    if (jj_scan_token(80)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_53() {
+    if (jj_3R_55()) return true;
     return false;
   }
 
@@ -1229,6 +1257,21 @@ public class LuaParser implements LuaParserConstants {
     if (jj_scan_token(FOR)) return true;
     if (jj_scan_token(NAME)) return true;
     if (jj_scan_token(71)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_45() {
+    if (jj_3R_53()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_44() {
+    if (jj_3R_52()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_43() {
+    if (jj_3R_51()) return true;
     return false;
   }
 
@@ -1243,7 +1286,7 @@ public class LuaParser implements LuaParserConstants {
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   private int jj_gen;
-  final private int[] jj_la1 = new int[30];
+  final private int[] jj_la1 = new int[31];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -1253,13 +1296,13 @@ public class LuaParser implements LuaParserConstants {
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000000,0x0,};
+      jj_la1_0 = new int[] {0x0,0x80000000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x20000000,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0xc00b0,0x2000,0x0,0xc0080,0x20,0x2,0x1,0x20190c08,0x0,0x0,0x0,0x20190c08,0x20190408,0x80000,0x0,0x20190c08,0x20000000,0x0,0x0,0x80000,0x0,0x80000,0x20190c08,0x0,0x0,0x20190c08,0x0,0x1000,0x800,};
+      jj_la1_1 = new int[] {0x0,0xc00b0,0x2000,0x0,0xc0080,0x30,0x2,0x1,0x20190c08,0x0,0x0,0x0,0x20190c08,0x20190408,0x20000000,0x80000,0x0,0x20190c08,0x20000000,0x0,0x0,0x80000,0x0,0x80000,0x20190c08,0x0,0x0,0x20190c08,0x0,0x1000,0x800,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x20,0x240,0x0,0x100,0x240,0x0,0x0,0x0,0x84220,0x40,0x180,0x100,0x84220,0x4200,0x200,0x100,0x84220,0x200,0x800,0x1000,0x2000,0x100,0x2000,0x94220,0x140,0x10000,0x84220,0x140,0x7ffc0000,0x80020,};
+      jj_la1_2 = new int[] {0x20,0x840,0x0,0x100,0x840,0x0,0x0,0x0,0x90820,0x40,0x180,0x100,0x90820,0x10800,0xa00,0x800,0x100,0x90820,0x800,0x2000,0x4000,0x8000,0x100,0x8000,0x90a20,0x140,0x200,0x90820,0x140,0x7ffc0000,0x80020,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[6];
   private boolean jj_rescan = false;
@@ -1276,7 +1319,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 31; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1291,7 +1334,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 31; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1302,7 +1345,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 31; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1313,7 +1356,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 31; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1323,7 +1366,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 31; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1333,7 +1376,7 @@ public class LuaParser implements LuaParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 30; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 31; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -1450,7 +1493,7 @@ public class LuaParser implements LuaParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 31; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

@@ -1,0 +1,155 @@
+MAY 14
+___________________________________________________________________________________________________________
+chunk       ::= block
+block       ::= {stat}
+stat        ::= ‘;’ | varlist ‘=’ explist
+varlist     ::= var {‘,’ var}
+var         ::= Name 
+explist     ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Number | String | exp binop exp | unop exp 
+binop       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+unop        ::= ‘-’ | not | ‘#’
+
+
+
+trecho      ::= bloco
+block       ::= {comando}
+comando     ::= ‘;’ | listavars ‘=’ listaexps
+listavars   ::= var {‘,’ var}
+var         ::= Nome 
+listaexps   ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Numero | String | exp opbin exp | opun exp 
+opbin       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+opun        ::= ‘-’ | not | ‘#’
+
+
+
+MAY 16
+___________________________________________________________________________________________________________
+
+chunk           ::= block
+block           ::= {stat}
+stat            ::= ‘;’ | varlist ‘=’ explist | functioncall
+varlist         ::= var {‘,’ var}
+var             ::= Name 
+explist         ::= exp {‘,’ exp}
+exp             ::= nil | false | true | Number | String | exp binop exp | unop exp 
+binop           ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+unop            ::= ‘-’ | not | ‘#’
+prefixexp       ::= var | functioncall | ‘(’ exp ‘)’
+functioncall    ::= prefixexp args
+args            ::= ‘(’ [explist] ‘)’ | String 
+
+
+trecho      ::= bloco
+block       ::= {comando}
+comando     ::= ‘;’ | listavars ‘=’ listaexps | chamadafuncao
+listavars   ::= var {‘,’ var}
+var         ::= Nome 
+listaexps   ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Numero | String | exp opbin exp | opun exp 
+opbin       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+opun        ::= ‘-’ | not | ‘#’
+chamadafunção ::=  expprefixo args 
+expprefixo  ::= var | chamadafuncao | ‘(’ exp ‘)’
+args        ::=  ‘(’ [listaexps] ‘)’ | Cadeia 
+
+
+MAY 19
+___________________________________________________________________________________________________________
+
+chunk           ::= block
+block           ::= {stat}
+stat            ::= ‘;’ | varlist ‘=’ explist |  do block end |  while exp do block end | functioncall |  if exp then block {elseif exp then block} [else block] end | for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | function funcname funcbody |
+varlist         ::= var {‘,’ var}
+var             ::= Name 
+explist         ::= exp {‘,’ exp}
+exp             ::= nil | false | true | Number | String | exp binop exp | unop exp 
+binop           ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+unop            ::= ‘-’ | not | ‘#’
+prefixexp       ::= var | functioncall | ‘(’ exp ‘)’
+functioncall    ::= prefixexp args
+args            ::= ‘(’ [explist] ‘)’ | String 
+funcname        ::= Name {‘.’ Name} [‘:’ Name]
+funcbody        ::= ‘(’ [parlist] ‘)’ block end
+parlist         ::= namelist [‘,’ ‘...’] | ‘...’
+namelist        ::= Name {‘,’ Name}
+
+
+trecho      ::= bloco
+block       ::= {comando}
+comando     ::= ‘;’ | listavars ‘=’ listaexps | do bloco end | while exp do bloco end | chamadafuncao | if exp then bloco {elseif exp then bloco} [else bloco] end | for Nome ‘=’ exp ‘,’ exp [‘,’ exp] do bloco end | function nomefunção corpofunção |
+listavars   ::= var {‘,’ var}
+var         ::= Nome 
+listaexps   ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Numero | String | construtortabela | exp opbin exp | opun exp 
+opbin       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+opun        ::= ‘-’ | not | ‘#’
+chamadafunção ::=  expprefixo args 
+expprefixo  ::= var | chamadafuncao | ‘(’ exp ‘)’
+args        ::=  ‘(’ [listaexps] ‘)’ | construtortabela | Cadeia 
+nomefunção  ::= Nome {‘.’ Nome} [‘:’ Nome]
+corpofunção ::= ‘(’ [listapars] ‘)’ bloco end
+listapars   ::= listanomes [‘,’ ‘...’] | ‘...’
+listanomes  ::= Nome {‘,’ Nome}
+construtortabela ::= ‘{’ [listacampos] ‘}’
+listacampos ::= campo {sepcampos campo} [sepcampos]
+campo       ::= ‘[’ exp ‘]’ ‘=’ exp | Nome ‘=’ exp | exp
+sepcampos   ::= ‘,’ | ‘;’
+
+
+MAY 20
+___________________________________________________________________________________________________________
+
+
+
+trecho      ::= bloco
+bloco       ::= {comando} [comandoret]
+comando     ::= ‘;’ | listavars ‘=’ listaexps | do bloco end | while exp do bloco end | chamadafuncao | if exp then bloco {elseif exp then bloco} [else bloco] end | for Nome ‘=’ exp ‘,’ exp [‘,’ exp] do bloco end | function nomefunção corpofunção |
+comandoret  ::= return [listaexps] [‘;’]
+listavars   ::= var {‘,’ var}
+var         ::= Nome 
+listaexps   ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Numero | String | construtortabela | exp opbin exp | opun exp 
+opbin       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+opun        ::= ‘-’ | not | ‘#’
+chamadafunção ::=  expprefixo args 
+expprefixo  ::= var | chamadafuncao | ‘(’ exp ‘)’
+args        ::=  ‘(’ [listaexps] ‘)’ | construtortabela | Cadeia 
+nomefunção  ::= Nome {‘.’ Nome} [‘:’ Nome]
+corpofunção ::= ‘(’ [listapars] ‘)’ bloco end
+listapars   ::= listanomes [‘,’ ‘...’] | ‘...’
+listanomes  ::= Nome {‘,’ Nome}
+construtortabela ::= ‘{’ [listacampos] ‘}’
+listacampos ::= campo {sepcampos campo} [sepcampos]
+campo       ::= ‘[’ exp ‘]’ ‘=’ exp | Nome ‘=’ exp | exp
+sepcampos   ::= ‘,’ | ‘;’
+
+
+JUN 21
+___________________________________________________________________________________________________________
+
+
+
+trecho      ::= bloco
+bloco       ::= {comando} [comandoret]
+comando     ::= ‘;’ | listavars ‘=’ listaexps | do bloco end | while exp do bloco end | chamadafuncao | if exp then bloco {elseif exp then bloco} [else bloco] end | for Nome ‘=’ exp ‘,’ exp [‘,’ exp] do bloco end | function nomefunção corpofunção | for listanomes in listaexps do bloco end
+comandoret  ::= return [listaexps] [‘;’]
+listavars   ::= var {‘,’ var}
+var         ::= Nome | expprefixo ‘[’ exp ‘]’
+listaexps   ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Numero | String | construtortabela | exp opbin exp | opun exp 
+opbin       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+opun        ::= ‘-’ | not | ‘#’
+chamadafunção ::=  expprefixo args 
+expprefixo  ::= var | chamadafuncao | ‘(’ exp ‘)’
+args        ::=  ‘(’ [listaexps] ‘)’ | construtortabela | Cadeia 
+nomefunção  ::= Nome {‘.’ Nome} [‘:’ Nome]
+corpofunção ::= ‘(’ [listapars] ‘)’ bloco end
+listapars   ::= listanomes [‘,’ ‘...’] | ‘...’
+listanomes  ::= Nome {‘,’ Nome}
+construtortabela ::= ‘{’ [listacampos] ‘}’
+listacampos ::= campo {sepcampos campo} [sepcampos]
+campo       ::= ‘[’ exp ‘]’ ‘=’ exp | Nome ‘=’ exp | exp
+sepcampos   ::= ‘,’ | ‘;’
+

@@ -376,4 +376,18 @@ public class Evaluator implements Visitor {
 
 	public void visit(Escopo scope) {
 	}
+	
+	public LuaValor visit(Exp.IndexExp exp) {
+		exp.lhs.accept(this);
+		exp.exp.accept(this);
+		return null;
+	}
+	
+	public LuaValor visit(Comando.ForGenerico comando) {
+		visit(comando.escopo);
+		visitNomes(comando.nomes);
+		visitExps(comando.exps);
+		comando.bloco.accept(this);
+		return null;
+	}
 }

@@ -43,10 +43,11 @@ abstract public class Comando {
 		return new FuncDef(funcnome, funccorpo);
 	}
 
-	
-	
-	
-	
+	public static Comando forgenerico(List<Nome> nomes, List<Exp> exps,
+			Bloco bloco) {
+		return new ForGenerico(nomes, exps, bloco);
+	}
+
 	/*
 	 * SUBCLASSES
 	 */
@@ -158,6 +159,23 @@ abstract public class Comando {
 		public FuncDef(FuncNome nome, FuncCorpo corpo) {
 			this.nome = nome;
 			this.corpo = corpo;
+		}
+
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
+		}
+	}
+
+	public static class ForGenerico extends Comando {
+		public List<Nome> nomes;
+		public List<Exp> exps;
+		public Bloco bloco;
+		public Escopo escopo;
+
+		public ForGenerico(List<Nome> nomes, List<Exp> exps, Bloco bloco) {
+			this.nomes = nomes;
+			this.exps = exps;
+			this.bloco = bloco;
 		}
 
 		public LuaValor accept(Visitor visitor) {
