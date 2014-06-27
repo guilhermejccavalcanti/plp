@@ -6,26 +6,26 @@ import visitor.Visitor;
 abstract public class Exp {
 	abstract public LuaValor accept(Visitor visitor);
 
-//	public static Exp constante(LuaValue value) {
-//		return new Constante(value);
-//	}
-//
-//	public static Exp constante(String token) {
-//		switch (token) {
-//		case "true":
-//			return new ValorBooleano(true);
-//		case "false":
-//			return new ValorBooleano(false);
-//		default:
-//			break;
-//		}
-//		return null;
-////		return new Constante(value);
-//	}
-//
-//	public static Exp constantenumerica(String token) {
-//		return new Constante(LuaValue.valueOf(token).tonumber());
-//	}
+	// public static Exp constante(LuaValue value) {
+	// return new Constante(value);
+	// }
+	//
+	// public static Exp constante(String token) {
+	// switch (token) {
+	// case "true":
+	// return new ValorBooleano(true);
+	// case "false":
+	// return new ValorBooleano(false);
+	// default:
+	// break;
+	// }
+	// return null;
+	// // return new Constante(value);
+	// }
+	//
+	// public static Exp constantenumerica(String token) {
+	// return new Constante(LuaValue.valueOf(token).tonumber());
+	// }
 
 	public static Exp expunaria(int op, Exp rhs) {
 		if (rhs instanceof BinopExp) {
@@ -75,17 +75,15 @@ abstract public class Exp {
 	public static ParensExp parensprefix(Exp exp) {
 		return new ParensExp(exp);
 	}
-	
+
 	/** foo[exp] */
 	public static IndexExp indexop(ExpPrimaria lhs, Exp exp) {
 		return new IndexExp(lhs, exp);
 	}
 
-
-
 	/*
 	 * AUXILIARES
-	 */	
+	 */
 
 	public boolean isvarexp() {
 		return false;
@@ -133,9 +131,6 @@ abstract public class Exp {
 			throw new IllegalStateException("precedence of bad op " + op);
 		}
 	}
-
-
-
 
 	/*
 	 * SUBCLASSES
@@ -198,17 +193,17 @@ abstract public class Exp {
 		}
 	}
 
-//	public static class Constante extends Exp {
-//		public final LuaValue valor;
-//
-//		public Constante(LuaValue value) {
-//			this.valor = value;
-//		}
-//
-//		public void accept(Visitor visitor) {
-//			visitor.visit(this);
-//		}
-//	}
+	// public static class Constante extends Exp {
+	// public final LuaValue valor;
+	//
+	// public Constante(LuaValue value) {
+	// this.valor = value;
+	// }
+	//
+	// public void accept(Visitor visitor) {
+	// visitor.visit(this);
+	// }
+	// }
 
 	public static class UnopExp extends Exp {
 		public final int op;
@@ -260,15 +255,16 @@ abstract public class Exp {
 			return true;
 		}
 	}
-	
+
 	public static class IndexExp extends VarExp {
 		public final ExpPrimaria lhs;
 		public final Exp exp;
+
 		public IndexExp(ExpPrimaria lhs, Exp exp) {
 			this.lhs = lhs;
 			this.exp = exp;
 		}
-		
+
 		public LuaValor accept(Visitor visitor) {
 			return visitor.visit(this);
 		}

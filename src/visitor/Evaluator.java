@@ -1,6 +1,8 @@
 package visitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -19,6 +21,7 @@ import core.Comando.FuncDef;
 import core.ConstrutorTabela;
 import core.Escopo;
 import core.Exp;
+import core.Exp.ChamadaFunc;
 import core.Exp.NomeExp;
 import core.Exp.VarExp;
 import core.FuncArgs;
@@ -26,6 +29,8 @@ import core.FuncCorpo;
 import core.LuaBoolean;
 import core.LuaNil;
 import core.LuaNumber;
+import core.LuaString;
+import core.LuaTable;
 import core.LuaValor;
 import core.Nome;
 import core.ParList;
@@ -87,57 +92,92 @@ public class Evaluator implements Visitor {
 		return null;
 	}
 
-	// ATUALMENTE SÓ IMPLEMENTA ALGUMAS OPERAÇÕES PARA NUMBER, DEVERÁ SUPORTAR
-	// MÚLTIPLOS TIPOS
+	// ATUALMENTE SAO IMPLEMENTAS ALGUMAS OPERACOES PARA NUMBER, DEVERAO
+	// SUPORTAR
+	// MULTIPLOS TIPOS
 	public LuaValor visit(Exp.BinopExp exp) {
-		LuaNumber lvalor;
-		LuaNumber rvalor;
-		Integer il;
-		Integer rl;
-		LuaValor nvalor;
+
+		LuaValor nvalor = null;
+
+		LuaValor lvalor;
+		LuaValor rvalor;
+		Integer ilInteger;
+		Integer rlInterger;
+
 		switch (exp.op) {
 		case LuaOps.OP_OR:
+			return nvalor;
 		case LuaOps.OP_AND:
+			return nvalor;
 		case LuaOps.OP_LT:
-			lvalor = (LuaNumber) exp.lhs.accept(this);
-			rvalor = (LuaNumber) exp.rhs.accept(this);
-			il = lvalor.valor();
-			rl = rvalor.valor();
-			nvalor = new LuaBoolean(il < rl);
 			return nvalor;
 		case LuaOps.OP_GT:
+			return nvalor;
 		case LuaOps.OP_LE:
+			return nvalor;
 		case LuaOps.OP_GE:
+			return nvalor;
 		case LuaOps.OP_NEQ:
+			return nvalor;
 		case LuaOps.OP_EQ:
-			lvalor = (LuaNumber) exp.lhs.accept(this);
-			rvalor = (LuaNumber) exp.rhs.accept(this);
-			il = lvalor.valor();
-			rl = rvalor.valor();
-			nvalor = new LuaBoolean(il.equals(rl));
+			lvalor = exp.lhs.accept(this);
+			rvalor = exp.rhs.accept(this);
+			String lhs = lvalor.toString();
+			String rhs = rvalor.toString();
+			nvalor = new LuaBoolean(lhs.equals(rhs));
 			return nvalor;
 		case LuaOps.OP_CONCAT:
+			lvalor = exp.lhs.accept(this);
+			rvalor = exp.rhs.accept(this);
+			String concat = lvalor.toString() + rvalor.toString();
+			nvalor = new LuaString(concat);
+			return nvalor;
 		case LuaOps.OP_ADD:
 			lvalor = (LuaNumber) exp.lhs.accept(this);
 			rvalor = (LuaNumber) exp.rhs.accept(this);
-			il = lvalor.valor();
-			rl = rvalor.valor();
-			nvalor = new LuaNumber(il + rl);
+			ilInteger = ((LuaNumber) lvalor).valor();
+			rlInterger = ((LuaNumber) rvalor).valor();
+			nvalor = new LuaNumber(ilInteger + rlInterger);
 			return nvalor;
 		case LuaOps.OP_SUB:
+			lvalor = (LuaNumber) exp.lhs.accept(this);
+			rvalor = (LuaNumber) exp.rhs.accept(this);
+			ilInteger = ((LuaNumber) lvalor).valor();
+			rlInterger = ((LuaNumber) rvalor).valor();
+			nvalor = new LuaNumber(ilInteger - rlInterger);
+			return nvalor;
 		case LuaOps.OP_MUL:
+			lvalor = (LuaNumber) exp.lhs.accept(this);
+			rvalor = (LuaNumber) exp.rhs.accept(this);
+			ilInteger = ((LuaNumber) lvalor).valor();
+			rlInterger = ((LuaNumber) rvalor).valor();
+			nvalor = new LuaNumber(ilInteger * rlInterger);
+			return nvalor;
 		case LuaOps.OP_DIV:
+			lvalor = (LuaNumber) exp.lhs.accept(this);
+			rvalor = (LuaNumber) exp.rhs.accept(this);
+			ilInteger = ((LuaNumber) lvalor).valor();
+			rlInterger = ((LuaNumber) rvalor).valor();
+			nvalor = new LuaNumber(ilInteger / rlInterger);
+			return nvalor;
 		case LuaOps.OP_MOD:
+			lvalor = (LuaNumber) exp.lhs.accept(this);
+			rvalor = (LuaNumber) exp.rhs.accept(this);
+			ilInteger = ((LuaNumber) lvalor).valor();
+			rlInterger = ((LuaNumber) rvalor).valor();
+			nvalor = new LuaNumber(ilInteger % rlInterger);
+			return nvalor;
 		case LuaOps.OP_NOT:
+			return nvalor;
 		case LuaOps.OP_UNM:
+			return nvalor;
 		case LuaOps.OP_LEN:
+			return nvalor;
 		case LuaOps.OP_POW:
+			return nvalor;
 		default:
-			throw new IllegalStateException("Operação não implementada.");
+			throw new IllegalStateException("Operacao nao implementada.");
 		}
-
-		// exp.lhs.accept(this);
-		// exp.rhs.accept(this);
 	}
 
 	public LuaValor visit(Exp.FieldExp exp) {
@@ -156,8 +196,17 @@ public class Evaluator implements Visitor {
 	}
 
 	public LuaValor visit(Exp.UnopExp exp) {
-		exp.rhs.accept(this);
-		return null;
+
+		switch (exp.op) {
+		case LuaOps.OP_UNM: // "-"
+			LuaNumber rvalorNumber = (LuaNumber) exp.rhs.accept(this);
+			LuaValor nvalor = new LuaNumber(-rvalorNumber.valor());
+			return nvalor;
+		case LuaOps.OP_NOT: // <NOT>
+		case LuaOps.OP_LEN: // "#"
+		default:
+			throw new IllegalStateException("Operacao nao implementada.");
+		}
 	}
 
 	public LuaValor visit(LuaValor exp) {
@@ -261,11 +310,16 @@ public class Evaluator implements Visitor {
 			comando.ifbloco.accept(this);
 			this.ambiente.restaura();
 		} else {
+
 			Queue<Exp> elseifexps = new LinkedList<Exp>();
-			elseifexps.addAll(comando.elseifexps);
+			if (comando.elseifexps != null) {
+				elseifexps.addAll(comando.elseifexps);
+			}
 
 			Queue<Bloco> elseifblocos = new LinkedList<Bloco>();
-			elseifblocos.addAll(comando.elseifblocos);
+			if (comando.elseifblocos != null) {
+				elseifblocos.addAll(comando.elseifblocos);
+			}
 
 			visitElseIfs(elseifexps, elseifblocos, comando.elsebloco);
 		}
@@ -285,22 +339,60 @@ public class Evaluator implements Visitor {
 				visitElseIfs(elseifexps, elseifblocos, elsebloco);
 			}
 		} else {
-			if (elsebloco != null)
+			if (elsebloco != null) {
 				this.ambiente.incrementa();
 				elsebloco.accept(this);
 				this.ambiente.restaura();
+			}
 		}
 	}
 
 	public LuaValor visit(Comando.ForNumerico comando) {
-		visit(comando.escopo);
-		visit(comando.nome);
-		comando.inicial.accept(this);
-		comando.limite.accept(this);
-		if (comando.passo != null)
-			comando.passo.accept(this);
-		comando.bloco.accept(this);
+
+		LuaNumber limite = (LuaNumber) comando.limite.accept(this);
+
+		LuaNumber inicial = (LuaNumber) comando.inicial.accept(this);
+
+		// Adicionar a variavel e valor no ambiante (pilha).
+		try {
+			ambiente.map(comando.nome, inicial);
+		} catch (VariavelJaDeclaradaException e) {
+			System.out.println(e.getMessage());
+		}
+
+		int passoInt = 1;
+		if (comando.passo != null) {
+			LuaNumber passo = (LuaNumber) comando.passo.accept(this);
+			passoInt = passo.valor();
+		}
+
+		if (passoInt >= 0 && inicial.valor() <= limite.valor()) {
+			for (int i = inicial.valor(); i <= limite.valor(); i = i
+					+ (passoInt))
+				this.executaBlocoFor(comando, i);
+
+		} else if (passoInt <= 0 && inicial.valor() >= limite.valor()) {
+			for (int i = inicial.valor(); i >= limite.valor(); i = i
+					+ (passoInt))
+				this.executaBlocoFor(comando, i);
+		}
+
 		return null;
+	}
+
+	private void executaBlocoFor(Comando.ForNumerico comando, int i) {
+		try {
+			// Atualizar a variavel e valor no ambiante (pilha)
+			((AmbienteExecucaoImperativa2) ambiente).changeValor(comando.nome,
+					new LuaNumber(i));
+		} catch (VariavelNaoDeclaradaException e) {
+			System.out.println(e.getMessage());
+		}
+
+		// Bloco
+		this.ambiente.incrementa();
+		comando.bloco.accept(this);
+		this.ambiente.restaura();
 	}
 
 	public LuaValor visit(Comando.FuncDef comando) {
@@ -327,18 +419,39 @@ public class Evaluator implements Visitor {
 	}
 
 	public LuaValor visit(ConstrutorTabela tabela) {
-		if (tabela.campos != null)
-			for (int i = 0, n = tabela.campos.size(); i < n; i++)
-				((CampoTabela) tabela.campos.get(i)).accept(this);
-		return null;
+
+		HashMap<LuaValor, LuaValor> tabelaMap = new LinkedHashMap<LuaValor, LuaValor>();
+
+		LuaNumber indice = new LuaNumber(1);
+
+		if (tabela.campos != null) {
+			for (int i = 0, n = tabela.campos.size(); i < n; i++) {
+
+				if (tabela.campos.get(i).nome != null) {
+
+					LuaString keyTable = new LuaString(
+							tabela.campos.get(i).nome);
+
+					// campo de tabela com chave (indice)
+					tabelaMap.put(keyTable,
+							tabela.campos.get(i).rhs.accept(this));
+
+				} else {
+					// campo de tabela sem chave (adicionar indice)
+					tabelaMap
+							.put(indice, tabela.campos.get(i).rhs.accept(this));
+					indice = new LuaNumber(indice.valor() + 1);
+				}
+
+			}
+		}
+
+		return new LuaTable(tabelaMap);
 	}
 
-	public void visit(CampoTabela campo) {
-		if (campo.nome != null)	;
-		visit(campo.nome);
-		if (campo.index != null)
-			campo.index.accept(this);
-		campo.rhs.accept(this);
+	public LuaValor visit(CampoTabela campo) {
+
+		return null;
 	}
 
 	public LuaValor visit(Comando.Return comando) {
@@ -376,18 +489,78 @@ public class Evaluator implements Visitor {
 
 	public void visit(Escopo scope) {
 	}
-	
+
 	public LuaValor visit(Exp.IndexExp exp) {
-		exp.lhs.accept(this);
-		exp.exp.accept(this);
-		return null;
+		LuaValor valorIndex = null;
+		if (exp.lhs.accept(this) instanceof LuaTable) {
+
+			HashMap<LuaValor, LuaValor> luaTable = ((LuaTable) exp.lhs
+					.accept(this)).valor();
+
+			for (LuaValor keyValor : luaTable.keySet()) {
+				if (exp.exp.accept(this) instanceof LuaString
+						&& !this.isNumer(((LuaString) exp.exp.accept(this))
+								.valor())
+						&& ((LuaString) exp.exp.accept(this)).valor()
+								.toString().equals(keyValor.toString())) {
+
+					valorIndex = luaTable.get(keyValor);
+					break;
+
+				}
+				if (exp.exp.accept(this) instanceof LuaNumber
+						&& ((LuaNumber) exp.exp.accept(this)).valor()
+								.toString().equals(keyValor.toString())) {
+
+					valorIndex = luaTable.get(keyValor);
+					break;
+				}
+			}
+		}
+		return valorIndex;
 	}
-	
+
+	public boolean isNumer(String s) {
+		return s.matches("[0-9]*");
+	}
+
 	public LuaValor visit(Comando.ForGenerico comando) {
-		visit(comando.escopo);
-		visitNomes(comando.nomes);
-		visitExps(comando.exps);
-		comando.bloco.accept(this);
+		ChamadaFunc chamadaFunc = ((ChamadaFunc) comando.exps.get(0));
+		if (chamadaFunc != null
+				&& chamadaFunc.args.accept(this).get(0) instanceof LuaTable) {
+			LuaTable table = (LuaTable) chamadaFunc.args.accept(this).get(0);
+			for (LuaValor keyValor : table.valor().keySet()) {
+				try {
+					ambiente.map(comando.nomes.get(0), keyValor);
+				} catch (VariavelJaDeclaradaException e) {
+					try {
+						((AmbienteExecucaoImperativa2) ambiente).changeValor(
+								comando.nomes.get(0), keyValor);
+					} catch (VariavelNaoDeclaradaException e1) {
+						e.getMessage();
+					}
+				}
+				if (comando.nomes.size() > 1) {
+					try {
+						ambiente.map(comando.nomes.get(1),
+								table.valor().get(keyValor));
+
+					} catch (VariavelJaDeclaradaException e) {
+						try {
+							((AmbienteExecucaoImperativa2) ambiente)
+									.changeValor(comando.nomes.get(1), table
+											.valor().get(keyValor));
+						} catch (VariavelNaoDeclaradaException e1) {
+							e.getMessage();
+						}
+					}
+				}
+				// Bloco
+				this.ambiente.incrementa();
+				comando.bloco.accept(this);
+				this.ambiente.restaura();
+			}
+		}
 		return null;
 	}
 }

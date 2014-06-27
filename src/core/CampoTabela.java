@@ -26,7 +26,7 @@ public class CampoTabela  {
 		return new CampoTabela(null, null, rhs);
 	}
 
-	public void accept(Visitor visitor) {
-		visitor.visit(this);
+	public LuaValor accept(Visitor visitor) {
+		return visitor.visit(this);
 	}
 }

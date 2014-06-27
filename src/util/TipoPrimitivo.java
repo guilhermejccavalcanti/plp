@@ -5,7 +5,8 @@ public enum TipoPrimitivo implements Tipo {
 	INTEIRO("INTEIRO"),
 	BOOLEANO("BOOLEANO"),
 	STRING("STRING"),
-	NIL("NIL");
+	NIL("NIL"),
+	TABLE("TABLE");
 
 	protected String nome;
 
@@ -34,6 +35,10 @@ public enum TipoPrimitivo implements Tipo {
 		return this.eIgual(NIL);
 	}
 
+	public boolean eTable() {
+		return this.eIgual(TABLE);
+	}
+	
 	public boolean eIgual(Tipo tipo) {
 		boolean ret = false;
 		if (eValido()) {

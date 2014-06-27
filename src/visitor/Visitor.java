@@ -60,7 +60,6 @@ public interface Visitor {
 	
 	public LuaValor visit(ConstrutorTabela tabela);
 	
-	public void visit(CampoTabela campo);
 	
 	public LuaValor visit(Comando.Return comando);
 
@@ -69,6 +68,8 @@ public interface Visitor {
 	public void visit(String name);
 
 	public void visit(Escopo scope);
+
+	public LuaValor visit(CampoTabela campoTabela);
 	
 	public LuaValor visit(Exp.IndexExp exp);
 	
