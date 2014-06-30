@@ -1,3 +1,10 @@
+--testando precedência de operadores
+x = (2+2)*2
+print(x)		--8
+
+x = 2+2*2
+print(x)		--6
+
 --testando escopos
 a = 2
 c = 1

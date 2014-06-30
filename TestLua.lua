@@ -5,6 +5,14 @@ i 	= 1
 
 print(a)
 
+function fact(n)
+   if n == 0 then
+      return 1
+   else
+      return n * fact(n - 1)
+   end
+end
+
 print(fact(5))
 
 for i = 1,10 do
@@ -21,13 +29,6 @@ while i < 5 do
 	i = i + 1
 end
 
-function fact(n)
-   if n == 0 then
-      return 1
-   else
-      return n * fact(n - 1)
-   end
-end
 
 for i,v in {10,20,30} do 
 	print(i,v) 
