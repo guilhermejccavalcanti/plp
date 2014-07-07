@@ -1,5 +1,6 @@
 --testando coerção de tipos
-print(2^"3")			-- 4
+
+print(2^"3")			-- 8
 print("numero "..1)     -- numero 1
 
 print(2+"2s")			-- erro

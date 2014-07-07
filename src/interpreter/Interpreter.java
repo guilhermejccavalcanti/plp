@@ -13,9 +13,9 @@ import core.Trecho;
 public class Interpreter {
 	public static void main(String[] args) {
 		try {
-			Interpreter interpreter = new Interpreter("TestLua4.lua");
+			Interpreter interpreter = new Interpreter("TestLua5.lua");
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 

@@ -36,6 +36,7 @@ import core.Nome;
 import core.ParList;
 import core.Trecho;
 import exceptions.CoercionException;
+import exceptions.InvalidTypeLuaException;
 
 public class Evaluator implements Visitor {
 
@@ -97,8 +98,6 @@ public class Evaluator implements Visitor {
 	// MULTIPLOS TIPOS
 	public LuaValor visit(Exp.BinopExp exp) {
 		LuaValor nvalor = new LuaNil();
-		LuaValor lvalor;
-		LuaValor rvalor;
 		Integer ilInteger;
 		Integer rlInterger;
 		boolean ilBoolean;
@@ -117,23 +116,24 @@ public class Evaluator implements Visitor {
 			rlBoolean 	= this.convertToLuaBoolean(exp.rhs.accept(this));
 			nvalor = new LuaBoolean(ilBoolean && rlBoolean);
 			break;
-		case LuaOps.OP_LT:
-			return nvalor;
-		case LuaOps.OP_GT:
-			return nvalor;
-		case LuaOps.OP_LE:
-			return nvalor;
-		case LuaOps.OP_GE:
-			return nvalor;
-		case LuaOps.OP_NEQ:
-			return nvalor;
-		case LuaOps.OP_EQ:
-			lvalor = exp.lhs.accept(this);
-			rvalor = exp.rhs.accept(this);
-			String lhs = lvalor.toString();
-			String rhs = rvalor.toString();
-			nvalor = new LuaBoolean(lhs.equals(rhs));
-			return nvalor;
+		case LuaOps.OP_LT: // "<" 
+			nvalor = this.evaluateLessAndEqualOperation(exp, false);
+			break;			
+		case LuaOps.OP_GT: // ">"
+			nvalor = this.evaluateGreaterAndEqualOperation(exp, false);
+			break;			
+		case LuaOps.OP_LE: // "<=" 
+			nvalor = this.evaluateLessAndEqualOperation(exp, true);
+			break;
+		case LuaOps.OP_GE: // ">="
+			nvalor = this.evaluateGreaterAndEqualOperation(exp, true);
+			break;
+		case LuaOps.OP_NEQ: // "~="
+			nvalor = this.evaluateNotEqualOperation(exp);
+			break;
+		case LuaOps.OP_EQ: // "=="
+			nvalor = this.evaluateEqualOperation(exp);
+			break;
 			//TODO COERÇÃO
 		case LuaOps.OP_CONCAT:
 			ilString 	= this.convertToLuaString(exp.lhs.accept(this));
@@ -176,6 +176,152 @@ public class Evaluator implements Visitor {
 		return nvalor;
 	}
 
+	private LuaValor evaluateLessAndEqualOperation(Exp.BinopExp exp, boolean isCompareEquals) {
+		LuaValor nvalor = null;
+		LuaValor lvalor;
+		LuaValor rvalor;
+		lvalor = exp.lhs.accept(this);
+		rvalor = exp.rhs.accept(this);
+		
+		if(this.checaTipo(lvalor, rvalor)){	
+			
+			LuaValor ilValor = exp.lhs.accept(this);
+			LuaValor rlValor = exp.rhs.accept(this);
+			
+			if(ilValor instanceof LuaNumber && rlValor instanceof LuaNumber){
+				// Compare Number
+				boolean result = ((LuaNumber)ilValor).valor() < ((LuaNumber)rlValor).valor();	
+				
+				if(!result && isCompareEquals){
+					result = ((LuaNumber)ilValor).valor() == ((LuaNumber)rlValor).valor();	
+				}
+				
+				nvalor = new LuaBoolean(result);
+								
+			}else if (ilValor instanceof LuaString && rlValor instanceof LuaString){
+				// Compare Strings
+				String ilString = ((LuaString)exp.lhs.accept(this)).valor();
+				String rlString = ((LuaString)exp.rhs.accept(this)).valor();
+				
+				int result = ilString.compareTo(rlString);
+				
+				if(isCompareEquals && result == 0){
+					nvalor = new LuaBoolean(true);	
+					
+				}else if(!isCompareEquals && result == 0){
+					nvalor = new LuaBoolean(false);	
+					
+				}else if(result <= -1){
+					nvalor = new LuaBoolean(true);	
+					
+				}else if(result >= 1){
+					nvalor = new LuaBoolean(false);
+				}				
+			}else{
+				throw new InvalidTypeLuaException("Incorrect Lua type: " + exp.rhs.accept(this).getClass());
+			}
+
+		}else{
+			throw new InvalidTypeLuaException("Incorrect Lua type: " + exp.rhs.accept(this).getClass());
+		}
+		return nvalor;
+	}
+	
+	private LuaValor evaluateGreaterAndEqualOperation(Exp.BinopExp exp, boolean isCompareEquals) {
+		LuaValor nvalor = null;
+		LuaValor lvalor;
+		LuaValor rvalor;
+		lvalor = exp.lhs.accept(this);
+		rvalor = exp.rhs.accept(this);
+		
+		if(this.checaTipo(lvalor, rvalor)){	
+			
+			LuaValor ilValor = exp.lhs.accept(this);
+			LuaValor rlValor = exp.rhs.accept(this);
+			
+			if(ilValor instanceof LuaNumber && rlValor instanceof LuaNumber){
+				
+				// Compare Number
+				boolean result = ((LuaNumber)ilValor).valor() > ((LuaNumber)rlValor).valor();	
+				
+				if(!result && isCompareEquals){
+					result = ((LuaNumber)ilValor).valor() == ((LuaNumber)rlValor).valor();	
+				}
+				
+				nvalor = new LuaBoolean(result);
+								
+			}else if (ilValor instanceof LuaString && rlValor instanceof LuaString){
+				// Compare Strings
+				String ilString = ((LuaString)exp.lhs.accept(this)).valor();
+				String rlString = ((LuaString)exp.rhs.accept(this)).valor();
+				
+				int result = ilString.compareTo(rlString);
+				
+				if(isCompareEquals && result == 0){
+					nvalor = new LuaBoolean(true);	
+					
+				}else if(!isCompareEquals && result == 0){
+					nvalor = new LuaBoolean(false);	
+					
+				}else if(result <= -1){
+					nvalor = new LuaBoolean(false);	
+					
+				}else if(result >= 1){
+					nvalor = new LuaBoolean(true);
+				}				
+			}else{
+				throw new InvalidTypeLuaException("Incorrect Lua type: " + exp.rhs.accept(this).getClass());
+			}
+
+		}else{
+			throw new InvalidTypeLuaException("Incorrect Lua type: " + exp.rhs.accept(this).getClass());
+		}
+		return nvalor;
+	}
+	
+	private LuaValor evaluateEqualOperation(Exp.BinopExp exp) {
+		LuaValor nvalor;
+		LuaValor lvalor;
+		LuaValor rvalor;
+		lvalor = exp.lhs.accept(this);
+		rvalor = exp.rhs.accept(this);
+		
+		if(this.checaTipo(lvalor, rvalor)){
+			String lhs = lvalor.toString();
+			String rhs = rvalor.toString();
+			nvalor = new LuaBoolean(lhs.equals(rhs));				
+		}else{
+			nvalor = new LuaBoolean(false);		
+		}
+		return nvalor;
+	}
+
+	private LuaValor evaluateNotEqualOperation(Exp.BinopExp exp) {
+		LuaValor nvalor;
+		LuaValor lvalor;
+		LuaValor rvalor;
+		lvalor = exp.lhs.accept(this);
+		rvalor = exp.rhs.accept(this);
+		
+		if(this.checaTipo(lvalor, rvalor)){
+			String lhs = lvalor.toString();
+			String rhs = rvalor.toString();
+			nvalor = new LuaBoolean(!lhs.equals(rhs));				
+		}else{
+			nvalor = new LuaBoolean(true);		
+		}
+		return nvalor;
+	}
+	
+	private boolean checaTipo(LuaValor luaValor1, LuaValor luaValor2) {
+		boolean result = false;
+		
+		if(luaValor1.getClass().equals(luaValor2.getClass())){
+			result = true;		
+		}
+		
+		return result;
+	}
 
 	public LuaValor visit(Exp.FieldExp exp) {
 		exp.lhs.accept(this);
@@ -193,13 +339,44 @@ public class Evaluator implements Visitor {
 	}
 
 	public LuaValor visit(Exp.UnopExp exp) {
+		LuaValor nvalor = null;
+		LuaValor valorVar = null;
 		switch (exp.op) {
 		case LuaOps.OP_UNM: // "-"
 			LuaNumber rvalorNumber = (LuaNumber) exp.rhs.accept(this);
-			LuaValor nvalor = new LuaNumber(-rvalorNumber.valor());
+			nvalor = new LuaNumber(-rvalorNumber.valor());
 			return nvalor;
 		case LuaOps.OP_NOT: // <NOT>
-		case LuaOps.OP_LEN: // "#"
+			
+			valorVar = exp.rhs.accept(this);
+			
+			if(valorVar instanceof LuaBoolean){
+				
+				nvalor = new LuaBoolean(!((LuaBoolean) valorVar).valor());
+						
+			}else{
+				nvalor = new LuaBoolean(false);
+			}		
+			
+			return nvalor;
+			
+		case LuaOps.OP_LEN: // "#
+			
+			valorVar = exp.rhs.accept(this);
+			
+			if(valorVar instanceof LuaString){				
+				nvalor = new LuaNumber(valorVar.toString().length());
+				
+			}else if(valorVar instanceof LuaTable){				
+				nvalor = new LuaNumber(((LuaTable) valorVar).valor().size());
+				
+			}else{
+				throw new InvalidTypeLuaException("Incorrect Lua type: " + exp.rhs.accept(this).getClass());
+			}			
+			
+			return nvalor;
+			
+			
 		default:
 			throw new IllegalStateException("Operacao nao implementada.");
 		}
@@ -493,6 +670,8 @@ public class Evaluator implements Visitor {
 					break;
 				}
 			}
+		}else{
+			throw new InvalidTypeLuaException("Incorrect Lua type: " + exp.lhs.accept(this).getClass());
 		}
 		return valorIndex;
 	}
