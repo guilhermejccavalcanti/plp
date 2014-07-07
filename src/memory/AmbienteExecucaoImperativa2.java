@@ -1,6 +1,7 @@
 package memory;
 
 import core.Comando.FuncDef;
+import core.LuaValor;
 import core.Nome;
 
 public interface AmbienteExecucaoImperativa2 extends AmbienteExecucaoImperativa {
@@ -10,5 +11,9 @@ public interface AmbienteExecucaoImperativa2 extends AmbienteExecucaoImperativa 
 	public FuncDef getProcedimento(Nome idArg)	throws FuncaoNaoDeclaradaException;
 	
 	public boolean contemVariavel(Nome idArg);
+	
+	public void mapGlobal(Nome idArg, LuaValor valorId) throws VariavelJaDeclaradaException;
+	
+	public LuaValor getLocal(Nome idArg) throws VariavelNaoDeclaradaException;
 
 }

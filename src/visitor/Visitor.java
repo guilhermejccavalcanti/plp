@@ -6,7 +6,6 @@ import core.Bloco;
 import core.CampoTabela;
 import core.Comando;
 import core.ConstrutorTabela;
-import core.Escopo;
 import core.Exp;
 import core.Exp.NomeExp;
 import core.Exp.VarExp;
@@ -60,18 +59,15 @@ public interface Visitor {
 	
 	public LuaValor visit(ConstrutorTabela tabela);
 	
-	
 	public LuaValor visit(Comando.Return comando);
 
 	public LuaValor visit(Nome name);
-
-	public void visit(String name);
-
-	public void visit(Escopo scope);
 
 	public LuaValor visit(CampoTabela campoTabela);
 	
 	public LuaValor visit(Exp.IndexExp exp);
 	
 	public LuaValor visit(Comando.ForGenerico Comando);
+	
+	public LuaValor visit(Comando.AtribuicaoLocal Comando);
 }

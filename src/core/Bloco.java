@@ -7,7 +7,6 @@ import visitor.Visitor;
 
 public class Bloco extends Comando{
 	public List<Comando> comandos = new ArrayList<Comando>();
-	public Escopo escopo;
 	
 	public void add(Comando c) {
 		if (c == null)

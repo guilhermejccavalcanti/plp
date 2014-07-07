@@ -153,3 +153,28 @@ listacampos ::= campo {sepcampos campo} [sepcampos]
 campo       ::= ‘[’ exp ‘]’ ‘=’ exp | Nome ‘=’ exp | exp
 sepcampos   ::= ‘,’ | ‘;’
 
+
+
+JUL 07
+___________________________________________________________________________________________________________
+trecho      ::= bloco
+bloco       ::= {comando} [comandoret]
+comando     ::= ‘;’ | listavars ‘=’ listaexps | do bloco end | while exp do bloco end | chamadafuncao | if exp then bloco {elseif exp then bloco} [else bloco] end | for Nome ‘=’ exp ‘,’ exp [‘,’ exp] do bloco end | function nomefunção corpofunção | for listanomes in listaexps do bloco end | local listanomes [‘=’ listaexps]
+comandoret  ::= return [listaexps] [‘;’]
+listavars   ::= var {‘,’ var}
+var         ::= Nome | expprefixo ‘[’ exp ‘]’
+listaexps   ::= exp {‘,’ exp}
+exp         ::= nil | false | true | Numero | String | construtortabela | exp opbin exp | opun exp 
+opbin       ::= ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘^’ | ‘%’ | ‘..’ |  ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | and | or
+opun        ::= ‘-’ | not | ‘#’
+chamadafunção ::=  expprefixo args 
+expprefixo  ::= var | chamadafuncao | ‘(’ exp ‘)’
+args        ::=  ‘(’ [listaexps] ‘)’ | construtortabela | Cadeia 
+nomefunção  ::= Nome {‘.’ Nome} [‘:’ Nome]
+corpofunção ::= ‘(’ [listapars] ‘)’ bloco end
+listapars   ::= listanomes [‘,’ ‘...’] | ‘...’
+listanomes  ::= Nome {‘,’ Nome}
+construtortabela ::= ‘{’ [listacampos] ‘}’
+listacampos ::= campo {sepcampos campo} [sepcampos]
+campo       ::= ‘[’ exp ‘]’ ‘=’ exp | Nome ‘=’ exp | exp
+sepcampos   ::= ‘,’ | ‘;’

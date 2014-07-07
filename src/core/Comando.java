@@ -48,6 +48,10 @@ abstract public class Comando {
 		return new ForGenerico(nomes, exps, bloco);
 	}
 
+	public static Comando atribuicaolocal(List<Nome> nomes, List<Exp> valores) {
+		return new AtribuicaoLocal(nomes, valores);
+	}
+
 	/*
 	 * SUBCLASSES
 	 */
@@ -136,7 +140,6 @@ abstract public class Comando {
 		public final Nome nome;
 		public final Exp inicial, limite, passo;
 		public final Bloco bloco;
-		public Escopo escopo;
 
 		public ForNumerico(String nome, Exp inicial, Exp limite, Exp passo,
 				Bloco bloco) {
@@ -170,12 +173,24 @@ abstract public class Comando {
 		public List<Nome> nomes;
 		public List<Exp> exps;
 		public Bloco bloco;
-		public Escopo escopo;
 
 		public ForGenerico(List<Nome> nomes, List<Exp> exps, Bloco bloco) {
 			this.nomes = nomes;
 			this.exps = exps;
 			this.bloco = bloco;
+		}
+
+		public LuaValor accept(Visitor visitor) {
+			return visitor.visit(this);
+		}
+	}
+
+	public static class AtribuicaoLocal extends Comando {
+		public final List<Nome> nomes;
+		public final List<Exp> valores;
+		public AtribuicaoLocal(List<Nome> names, List<Exp> values) {
+			this.nomes = names;
+			this.valores = values;
 		}
 
 		public LuaValor accept(Visitor visitor) {

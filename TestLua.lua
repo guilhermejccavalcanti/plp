@@ -1,10 +1,4 @@
-a	= 2+2*1
-t 	= {10,"hello",{1,2}}
-M 	= {one=1,two=2,three=3}
-i 	= 1
-
-print(a)
-
+-- testes gerais
 function fact(n)
    if n == 0 then
       return 1
@@ -23,13 +17,10 @@ for i = 1,10 do
 	end
 end
 
-
+i = 1
 while i < 5 do
 	print("hello",i)
 	i = i + 1
 end
 
 
-for i,v in {10,20,30} do 
-	print(i,v) 
-end

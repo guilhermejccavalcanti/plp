@@ -55,21 +55,68 @@ public class ContextoExecucaoImperativa2 extends ContextoExecucaoImperativa impl
 		return result;
 	}
 	
+//	public boolean contemVariavel(Nome idArg){
+//		boolean taNoEscopoAtual = false;
+//		Stack<HashMap<Nome,LuaValor>> auxStack = new Stack<HashMap<Nome,LuaValor>>();
+//		Stack<HashMap<Nome,LuaValor>> stack = this.getPilha();
+//		if (!stack.empty()) {
+//			HashMap<Nome,LuaValor> aux = stack.pop();
+//			auxStack.push(aux);
+//			if(aux.containsKey(idArg)){
+//				taNoEscopoAtual = true;
+//			}
+//		}
+//		while (!auxStack.empty()) {
+//			stack.push(auxStack.pop());
+//		}
+//		
+//		return (taNoEscopoAtual);
+//	}
+	
 	public boolean contemVariavel(Nome idArg){
-		boolean taNoEscopoAtual = false;
+		boolean contem = false;
 		Stack<HashMap<Nome,LuaValor>> auxStack = new Stack<HashMap<Nome,LuaValor>>();
 		Stack<HashMap<Nome,LuaValor>> stack = this.getPilha();
-		if (!stack.empty()) {
+		while (!stack.empty()) {
 			HashMap<Nome,LuaValor> aux = stack.pop();
 			auxStack.push(aux);
 			if(aux.containsKey(idArg)){
-				taNoEscopoAtual = true;
+				contem = true;
+				break;
 			}
 		}
 		while (!auxStack.empty()) {
 			stack.push(auxStack.pop());
 		}
-		
-		return (taNoEscopoAtual);
+		return contem;
+	}
+	
+	public void mapGlobal(Nome idArg, LuaValor valorId) throws VariavelJaDeclaradaException {
+		HashMap<Nome,LuaValor> aux = this.getPilha().get(0);
+		if (aux.put(idArg, valorId) != null) {
+			throw new VariavelJaDeclaradaException (idArg);
+		}
+	}
+	
+	public LuaValor getLocal(Nome idArg) throws VariavelNaoDeclaradaException {
+		try {
+			LuaValor result = null;
+			Stack<HashMap<Nome,LuaValor>> auxStack = new Stack<HashMap<Nome,LuaValor>>();
+			if (result == null && !this.getPilha().empty()) {
+				HashMap<Nome,LuaValor> aux = this.getPilha().pop();
+				auxStack.push(aux);
+				result = (LuaValor) aux.get(idArg);
+			}
+			while (!auxStack.empty()) {
+				this.getPilha().push(auxStack.pop());
+			}
+			if (result == null) {
+				throw new IdentificadorNaoDeclaradoException();
+			} 
+
+			return result;
+		} catch (IdentificadorNaoDeclaradoException e) {
+			throw new VariavelNaoDeclaradaException(idArg);
+		}
 	}
 }
