@@ -33,9 +33,8 @@ public class ContextoExecucaoImperativa2 extends ContextoExecucaoImperativa impl
 
 	public void mapProcedimento(Nome idArg, FuncDef procedimentoId) throws FuncaoJaDeclaradaException {
 		HashMap<Nome, FuncDef> aux = pilhaProcedimento.peek();
-		if (aux.put(idArg, procedimentoId) != null) {
-			throw new FuncaoJaDeclaradaException(idArg);
-		}
+		
+		aux.put(idArg, procedimentoId);
 	}
 
 	public FuncDef getProcedimento(Nome idArg) throws FuncaoNaoDeclaradaException {
