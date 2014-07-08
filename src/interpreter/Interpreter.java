@@ -13,7 +13,7 @@ import core.Trecho;
 public class Interpreter {
 	public static void main(String[] args) {
 		try {
-			Interpreter interpreter = new Interpreter("TestLua6.lua");
+			Interpreter interpreter = new Interpreter("TestLua.lua");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}

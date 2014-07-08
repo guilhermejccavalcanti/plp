@@ -107,7 +107,7 @@ public class Evaluator implements Visitor {
 		switch (exp.op) {
 		case LuaOps.OP_OR:
 			ilBoolean 	= this.convertToLuaBoolean(exp.lhs.accept(this));
-						
+
 			if(ilBoolean){
 				nvalor = exp.lhs.accept(this);
 			}else{
@@ -116,7 +116,7 @@ public class Evaluator implements Visitor {
 			break;
 		case LuaOps.OP_AND:
 			ilBoolean 	= this.convertToLuaBoolean(exp.lhs.accept(this));
-			
+
 			if(!ilBoolean){
 				nvalor = exp.lhs.accept(this);
 			}else{
@@ -480,18 +480,7 @@ public class Evaluator implements Visitor {
 	}
 
 	public LuaValor visit(Comando.Return comando) {
-
-		List<LuaValor> valorList = visitExps(comando.valores);
-		
-		HashMap<LuaValor, LuaValor> mapValor = new LinkedHashMap<LuaValor, LuaValor>();
-		
-		int index = 1;
-		for (LuaValor luaValor : valorList) {
-			mapValor.put(new LuaNumber(index), luaValor);
-			index++;
-		}
-		
-		return valorList.get(0);
+		return visitExps(comando.valores).get(0);
 	}
 
 	public LuaValor visit(Nome name) {
