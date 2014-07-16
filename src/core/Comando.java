@@ -4,9 +4,10 @@ import java.util.List;
 
 import visitor.Visitor;
 import core.Exp.VarExp;
+import exceptions.ReturnLuaException;
 
 abstract public class Comando {
-	public abstract LuaValor accept(Visitor visitor);
+	public abstract LuaValor accept(Visitor visitor) throws ReturnLuaException;
 
 	public static Comando bloco(Bloco bloco) {
 		return bloco;
@@ -98,7 +99,7 @@ abstract public class Comando {
 			this.bloco = bloco;
 		}
 
-		public LuaValor accept(Visitor visitor) {
+		public LuaValor accept(Visitor visitor) throws ReturnLuaException {
 			return visitor.visit(this);
 		}
 	}
@@ -131,7 +132,7 @@ abstract public class Comando {
 			this.elsebloco = elsebloco;
 		}
 
-		public LuaValor accept(Visitor visitor) {
+		public LuaValor accept(Visitor visitor) throws ReturnLuaException {
 			return visitor.visit(this);
 		}
 	}
@@ -150,7 +151,7 @@ abstract public class Comando {
 			this.bloco = bloco;
 		}
 
-		public LuaValor accept(Visitor visitor) {
+		public LuaValor accept(Visitor visitor) throws ReturnLuaException {
 			return visitor.visit(this);
 		}
 	}
@@ -180,7 +181,7 @@ abstract public class Comando {
 			this.bloco = bloco;
 		}
 
-		public LuaValor accept(Visitor visitor) {
+		public LuaValor accept(Visitor visitor) throws ReturnLuaException {
 			return visitor.visit(this);
 		}
 	}

@@ -14,12 +14,13 @@ import core.LuaValor;
 import core.Nome;
 import core.ParList;
 import core.Trecho;
+import exceptions.ReturnLuaException;
 
 public interface Visitor {
 
 	public void visit(Trecho trecho); 
 
-	public LuaValor visit(Bloco bloco);
+	public LuaValor visit(Bloco bloco) throws ReturnLuaException;
 	
 	public LuaValor visit(Comando.Atribui comando);
 
@@ -45,13 +46,13 @@ public interface Visitor {
 
 	public List<LuaValor> visit(FuncArgs args);
 
-	public LuaValor visit(Comando.WhileDo comando);
+	public LuaValor visit(Comando.WhileDo comando) throws ReturnLuaException;
 	
 	public LuaValor visit(Comando.ComandoChamadaFunc comando);
 
-	public LuaValor visit(Comando.IfThenElse comando);
+	public LuaValor visit(Comando.IfThenElse comando) throws ReturnLuaException;
 
-	public LuaValor visit(Comando.ForNumerico comando);
+	public LuaValor visit(Comando.ForNumerico comando) throws ReturnLuaException;
 	
 	public LuaValor visit(Comando.FuncDef comando);
 	
@@ -67,7 +68,7 @@ public interface Visitor {
 	
 	public LuaValor visit(Exp.IndexExp exp);
 	
-	public LuaValor visit(Comando.ForGenerico Comando);
+	public LuaValor visit(Comando.ForGenerico Comando) throws ReturnLuaException;
 	
 	public LuaValor visit(Comando.AtribuicaoLocal Comando);
 }

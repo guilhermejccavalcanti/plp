@@ -1,13 +1,13 @@
 package core;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import util.Tipo;
 import util.TipoPrimitivo;
 
-public class LuaTable extends LuaValorConcreto<HashMap<LuaValor, LuaValor>> {
+public class LuaTable extends LuaValorConcreto<TreeMap<LuaValor, LuaValor>> {
 
-	public LuaTable(HashMap<LuaValor, LuaValor> valor) {
+	public LuaTable(TreeMap<LuaValor, LuaValor> valor) {
 		super(valor);
 	}
 
